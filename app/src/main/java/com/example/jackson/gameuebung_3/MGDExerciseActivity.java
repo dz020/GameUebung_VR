@@ -46,9 +46,11 @@ import javax.microedition.khronos.opengles.GL10;
  */
 public class MGDExerciseActivity extends CardboardActivity implements CardboardView.StereoRenderer, OnFrameAvailableListener {
 
-    private static final String TAG = "MainActivity";
+    private static final String TAG = "MGDExerciseActivity";
     private static final int GL_TEXTURE_EXTERNAL_OES = 0x8D65;
     private Camera camera;
+
+    private MGDExerciseView mgdExerciseView; //unsere view
 
     private final String vertexShaderCode =
             "attribute vec4 position;" +
@@ -134,6 +136,7 @@ public class MGDExerciseActivity extends CardboardActivity implements CardboardV
     private SurfaceTexture surface;
     private float[] mView;
     private float[] mCamera;
+    private float[] mModelCube;
 
     public void startCamera(int texture)
     {
@@ -222,24 +225,29 @@ public class MGDExerciseActivity extends CardboardActivity implements CardboardV
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
+
+        /* wenn einkommentiert, dann 3d welt */
+        /* von hier 3d welt */
+        mgdExerciseView = new MGDExerciseView(getApplicationContext()); //view erzeugen
+        setContentView(mgdExerciseView); //view setzen
+        cardboardView = (CardboardView) findViewById(R.id.cardboard_view);
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        /* bis hier 3d welt*/
+
+        mModelCube = new float[16];
+        mCamera = new float[16];
+        mView = new float[16];
+
+        /* wenn einkommentiert, dann kamera als welt */
+        /* von hier kamera welt
+        mgdExerciseView = new MGDExerciseView(getApplicationContext()); //view erzeugen
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.common_ui);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         cardboardView = (CardboardView) findViewById(R.id.cardboard_view);
         cardboardView.setRenderer(this);
         setCardboardView(cardboardView);
-
-//        mModelCube = new float[16];
-        mCamera = new float[16];
-        mView = new float[16];
-//        mModelViewProjection = new float[16];
-//        mModelView = new float[16];
-//        mModelFloor = new float[16];
-//        mHeadView = new float[16];
-//        mVibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
-//
-//
-        mOverlayView = (CardboardOverlayView) findViewById(R.id.overlay);
-        mOverlayView.show3DToast("Pull the magnet when you find an object.");
+        /* bis hier kamera welt */
     }
 
     @Override
@@ -621,4 +629,16 @@ public class MGDExerciseActivity extends CardboardActivity implements CardboardV
 //
 //        return (Math.abs(pitch) < PITCH_LIMIT) && (Math.abs(yaw) < YAW_LIMIT);
 //    }
+
+    @Override
+    protected void onPause() {
+        mgdExerciseView.onPause(); //erst unsere view pausieren
+        super.onPause();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume(); //erst die activity starten
+        mgdExerciseView.onResume();
+    }
 }
