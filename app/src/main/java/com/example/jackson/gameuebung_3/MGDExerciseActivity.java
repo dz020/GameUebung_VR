@@ -23,6 +23,8 @@ import android.opengl.GLES20;
 import android.opengl.Matrix;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Window;
+import android.view.WindowManager;
 
 import com.google.vrtoolkit.cardboard.CardboardActivity;
 import com.google.vrtoolkit.cardboard.CardboardView;
@@ -43,43 +45,6 @@ import javax.microedition.khronos.opengles.GL10;
  * A Cardboard sample application.
  */
 public class MGDExerciseActivity extends CardboardActivity implements CardboardView.StereoRenderer, OnFrameAvailableListener {
-    
-    /*ehemals MGDExerciseActivity
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        mgdExerciseView = new MGDExerciseView(getApplicationContext()); //view erzeugen
-        requestWindowFeature(Window.FEATURE_NO_TITLE);
-        setContentView(mgdExerciseView); //view setzen
-
-        //damit view im fullscreen läuft:
-
-        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
-
-        //ab hier cardboard eingebunden
-        setContentView(R.layout.activity_main);
-        CardboardView cardboardView = (CardboardView) findViewById(R.id.cardboard_view);
-        // Associate a CardboardView.StereoRenderer with cardboardView.
-        cardboardView.setRenderer(this);
-        // Associate the cardboardView with this activity.
-        setCardboardView(cardboardView);
-
-    }
-
-    @Override
-    protected void onPause() {
-        mgdExerciseView.onPause(); //erst unsere view pausieren
-        super.onPause();
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume(); //erst die activity starten
-        mgdExerciseView.onResume();
-    }
-
-    */
 
     private static final String TAG = "MainActivity";
     private static final int GL_TEXTURE_EXTERNAL_OES = 0x8D65;
@@ -210,6 +175,7 @@ public class MGDExerciseActivity extends CardboardActivity implements CardboardV
     /**
      * Converts a raw text file, saved as a resource, into an OpenGL ES shader
      * @param type The type of shader we will be creating.
+     * @param resId The resource ID of the raw text file about to be turned into a shader.
      * @return
      */
     private int loadGLShader(int type, String code) {
@@ -255,8 +221,9 @@ public class MGDExerciseActivity extends CardboardActivity implements CardboardV
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.common_ui);
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         cardboardView = (CardboardView) findViewById(R.id.cardboard_view);
         cardboardView.setRenderer(this);
         setCardboardView(cardboardView);
