@@ -2,6 +2,13 @@
 <project version="4">
   <component name="Encoding">
     <file url="file://$USER_HOME$/testapp/platforms/SpotifyScanner/android/app/app/src/main/java/com/example/jackson/spotifyscanner/ResponseActivity.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/app/libs/android-support-v4.jar" charset="windows-1252" />
+    <file url="file://$PROJECT_DIR$/app/libs/cardboard.jar" charset="windows-1252" />
+    <file url="file://$PROJECT_DIR$/app/src/main/java/com/example/jackson/gameuebung_3/CardboardOverlayView.java" charset="windows-1252" />
+    <file url="file://$PROJECT_DIR$/app/src/main/java/com/example/jackson/gameuebung_3/WorldLayoutData.java" charset="windows-1252" />
+    <file url="file://$PROJECT_DIR$/app/src/main/java/com/example/jackson/gameuebung_3/cardboardpassthrough" charset="windows-1252" />
+    <file url="file://$PROJECT_DIR$/app/src/main/res/layout/activity_main.xml" charset="windows-1252" />
+    <file url="file://$PROJECT_DIR$/app/src/main/res/layout/common_ui.xml" charset="windows-1252" />
     <file url="PROJECT" charset="UTF-8" />
   </component>
 </project>
