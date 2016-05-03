@@ -245,6 +245,7 @@ public class MGDExerciseActivity extends CardboardActivity implements CardboardV
         setContentView(R.layout.common_ui);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         cardboardView = (CardboardView) findViewById(R.id.cardboard_view);
+        cardboardView.setEGLConfigChooser(8 , 8, 8, 8, 16, 0);
         cardboardView.setRenderer(this);
         setCardboardView(cardboardView);
         /* bis hier kamera welt */
