@@ -2,6 +2,8 @@ package com.example.jackson.gameuebung_3.game;
 
 import android.content.Context;
 import android.content.res.AssetManager;
+import android.opengl.GLES20;
+import android.util.Log;
 
 import com.example.jackson.gameuebung_3.Mesh;
 import com.example.jackson.gameuebung_3.graphics.Camera;
@@ -17,7 +19,7 @@ import java.io.InputStream;
  * Created by Jackson on 29.03.2016.
  */
 public class MGDExerciseGame extends Game{
-
+    private static String TAG = "MGDExerciseGame";
     private  long lastTime = 0;
     private Mesh cube;
     private Mesh road;
@@ -49,6 +51,7 @@ public class MGDExerciseGame extends Game{
             world_cube.setIdentity(); //skalierung auf 1 statt auf 0 => mal 1
             world_cube.rotateX(0); //rotiert den stern so, dass er direkt zu uns zeigt
             world_cube.rotateY(0);
+            world_cube.translate(0.0f, 2.0f, 10.0f); //x,y,z z verschiebt im raum
             world_cube.scale(4.0f);
 
         /* straße */
@@ -71,10 +74,14 @@ public class MGDExerciseGame extends Game{
     public void draw(float deltaSeconds) {
         AssetManager assetManager = context.getAssets();
         graphicsDevice.setCamera(this.camera);
-        graphicsDevice.clear(1.0f, 0.5f, 0.0f, 1.0f, 1.0f); //hintergrund farbe ändern
+        //graphicsDevice.clear(1.0f, 0.5f, 0.0f, 1.0f, 1.0f); //hintergrund farbe ändern
 
+        GLES20.glClearDepthf(1.0f);
+        //GLES20.glClearColor(1.0f, 0, 0, 1);
+        GLES20.glClear(GLES20.GL_DEPTH_BUFFER_BIT);
         /* cube */
-            world_cube.rotateY(4); //dreht den stern um sich selbst mit ... grad pro deltaSecond
+            //world_cube.rotateY(4); //dreht den stern um sich selbst mit ... grad pro deltaSecond
+            Log.d(TAG, "draw: CubeMatrix " + world_cube.toString());
             graphicsDevice.setWorldMatrix(world_cube);
             //graphicsDevice.unbindTexture();
             try { //TODO problem bei jedem draw  wird die textur neu geladen
@@ -121,4 +128,8 @@ public class MGDExerciseGame extends Game{
         //TODO texture neu laden wenn app aus hintergrund wieder in den vordergrund kommt
     }
 
+    public void setCameraParameters(float[] perspective, float[] eyeView) {
+        camera.setM_projection(new Matrix4x4(perspective));
+        camera.setM_view(new Matrix4x4(eyeView));
+    }
 }

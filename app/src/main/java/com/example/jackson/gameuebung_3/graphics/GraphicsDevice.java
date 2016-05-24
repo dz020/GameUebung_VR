@@ -3,7 +3,9 @@ package com.example.jackson.gameuebung_3.graphics;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
+import android.opengl.GLES20;
 import android.opengl.GLUtils;
+import android.util.Log;
 
 import com.example.jackson.gameuebung_3.VertexBuffer;
 import com.example.jackson.gameuebung_3.VertexElement;
@@ -15,46 +17,87 @@ import java.security.InvalidParameterException;
 
 import javax.microedition.khronos.opengles.GL10;
 
+
 /**
  * Created by Jackson on 29.03.2016.
  */
 public class GraphicsDevice {
 
+    private static final String TAG = "GraphicsDevice";
     private GL10 gl;
 
+    private final String vertexShaderCode =
+            "uniform mat4 projViewModel; " +
+            "attribute vec4 position;" +
+                    "attribute vec2 inputTextureCoordinate;" +
+                    "varying vec2 textureCoordinate;" +
+                    "void main()" +
+                    "{"+
+                    "gl_Position = projViewModel * position;"+
+                    "textureCoordinate = inputTextureCoordinate;" +
+                    "}";
+
+    private final String fragmentShaderCode =
+                    "precision mediump float;\n" +
+                    "varying vec2 textureCoordinate;                            \n" +
+                    "uniform sampler2D s_texture;               \n" +
+                    "void main(void) {" +
+                    "  gl_FragColor = texture2D( s_texture, textureCoordinate );\n" +
+                    //"  gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);\n" +
+                    "}";
+
+    private int mProgram;
+    private int mProjViewModelHandle;
+    private int mPositionHandle, mPositionHandle2;
+    private int mColorHandle;
+    private int mTextureCoordHandle;
+    private Camera camera;
+
     public void onSurfaceCreated(GL10 gl){
-        this.gl = gl;
-        gl.glHint(GL10.GL_PERSPECTIVE_CORRECTION_HINT, GL10.GL_NICEST);
+        //this.gl = gl;
+        //GLES20 gl2;
+        //GLES20.glHint(GLES20.GL_PERSPECTIVE_CORRECTION_HINT, GLES20.GL_NICEST);
+        int vertexShader = loadGLShader(GLES20.GL_VERTEX_SHADER, vertexShaderCode);
+        int fragmentShader = loadGLShader(GLES20.GL_FRAGMENT_SHADER, fragmentShaderCode);
+
+        mProgram = GLES20.glCreateProgram();             // create empty OpenGL ES Program
+        GLES20.glAttachShader(mProgram, vertexShader);   // add the vertex shader to program
+        GLES20.glAttachShader(mProgram, fragmentShader); // add the fragment shader to program
+        GLES20.glLinkProgram(mProgram);
+        mProjViewModelHandle = GLES20.glGetUniformLocation(mProgram, "projViewModel");
+        mPositionHandle = GLES20.glGetAttribLocation(mProgram, "position");
+        mTextureCoordHandle = GLES20.glGetAttribLocation(mProgram, "inputTextureCoordinate");
     }
 
     public void clear(float red, float green, float blue, float alpha){
-        gl.glClearColor(red, green, blue, alpha); //farbe für view (fullscreen) als rgba übergeben
-        gl.glClear(GL10.GL_COLOR_BUFFER_BIT); //sorgt dafür das farbe überschrieben wird
+        GLES20.glClearColor(red, green, blue, alpha); //farbe für view (fullscreen) als rgba übergeben
+        GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT); //sorgt dafür das farbe überschrieben wird
     }
 
     public void clear(float red, float green, float blue){ //mit fixem alpha
-        gl.glClearColor(red, green, blue, 1.0f); //farbe für view (fullscreen) als rgba übergeben
-        gl.glClear(GL10.GL_COLOR_BUFFER_BIT); //sorgt dafür das farbe überschrieben wird
+        GLES20.glClearColor(red, green, blue, 1.0f); //farbe für view (fullscreen) als rgba übergeben
+        GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT); //sorgt dafür das farbe überschrieben wird
     }
 
     public void clear(float red, float green, float blue, float alpha, float depth)
     {
-        gl.glClearColor(red, green, blue, alpha);
-        gl.glClearDepthf(depth);
-        gl.glClear(GL10.GL_COLOR_BUFFER_BIT | GL10.GL_DEPTH_BUFFER_BIT);
+        GLES20.glClearColor(red, green, blue, alpha);
+        GLES20.glClearDepthf(depth);
+        GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
     }
 
     public void resize(int width, int height){ //damit bei änderung der auflösung auch der viewport angegelichen wird
-        gl.glViewport(0, 0, width, height);
+        GLES20.glViewport(0, 0, width, height);
     }
 
     public void setCamera(Camera camera){
         Matrix4x4 m_projection = camera.getM_projection();
         Matrix4x4 m_view = camera.getM_view();
         Matrix4x4 m_projection_view = Matrix4x4.multiply(m_projection, m_view);
-        gl.glMatrixMode(GL10.GL_PROJECTION);
-        gl.glLoadMatrixf(m_projection_view.m, 0);
-        gl.glMatrixMode(GL10.GL_MODELVIEW);
+        //GLES20.glMatrixMode(GLES20.GL_PROJECTION);
+        //GLES20.glLoadMatrixf(m_projection_view.m, 0);
+        //GLES20.glMatrixMode(GLES20.GL_MODELVIEW);
+        this.camera = camera;
     }
 
     public void bindVertexBuffer(VertexBuffer vertexBuffer){
@@ -70,18 +113,29 @@ public class GraphicsDevice {
 
             switch (element.getSemantic()) {
                 case VERTEX_ELEMENT_POSITION:
-                    gl.glEnableClientState(GL10.GL_VERTEX_ARRAY);
-                    gl.glVertexPointer(count, type, stride, buffer);
+                    //GLES20.glEnableClientState(GLES20.GL_VERTEX_ARRAY);
+                    //GLES20.glVertexPointer(count, type, stride, buffer);
+
+                    mPositionHandle = GLES20.glGetAttribLocation(mProgram, "position");
+                    GLES20.glEnableVertexAttribArray(mPositionHandle);
+                    GLES20.glVertexAttribPointer(mPositionHandle, 3, GLES20.GL_FLOAT,
+                            false, stride, buffer);
                     break;
 
                 case VERTEX_ELEMENT_COLOR:
-                    gl.glEnableClientState(GL10.GL_COLOR_ARRAY);
-                    gl.glColorPointer(count, type, stride, buffer);
+                    //GLES20.glEnableClientState(GLES20.GL_COLOR_ARRAY);
+                    //GLES20.glColorPointer(count, type, stride, buffer);
+                    //mColorHandle = GLES20.glGetAttribLocation(mProgram, "s_texture");
                     break;
 
                 case VERTEX_ELEMENT_TEXCOORD:
-                    gl.glEnableClientState(GL10.GL_TEXTURE_COORD_ARRAY);
-                    gl.glTexCoordPointer(count, type, stride, buffer);
+                    //GLES20.glEnableClientState(GLES20.GL_TEXTURE_COORD_ARRAY);
+                    //GLES20.glTexCoordPointer(count, type, stride, buffer);
+
+                    mTextureCoordHandle = GLES20.glGetAttribLocation(mProgram, "inputTextureCoordinate");
+                    GLES20.glEnableVertexAttribArray(mTextureCoordHandle);
+                    GLES20.glVertexAttribPointer(mTextureCoordHandle, 2, GLES20.GL_FLOAT,
+                            false, stride, buffer);
                     break;
             }
         }
@@ -91,30 +145,42 @@ public class GraphicsDevice {
         for (VertexElement element : vertexBuffer.getVertexElements()) {
             switch (element.getSemantic()) {
                 case VERTEX_ELEMENT_POSITION:
-                    gl.glDisableClientState(GL10.GL_VERTEX_ARRAY);
+                    //GLES20.glDisableClientState(GLES20.GL_VERTEX_ARRAY);
+                    GLES20.glDisableVertexAttribArray(mPositionHandle);
                     break;
 
                 case VERTEX_ELEMENT_COLOR:
-                    gl.glDisableClientState(GL10.GL_COLOR_ARRAY);
+                    //GLES20.glDisableClientState(GLES20.GL_COLOR_ARRAY);
                     break;
 
                 case VERTEX_ELEMENT_TEXCOORD:
-                    gl.glDisableClientState(GL10.GL_TEXTURE_COORD_ARRAY);
+                    //GLES20.glDisableClientState(GLES20.GL_TEXTURE_COORD_ARRAY);
+                    GLES20.glDisableVertexAttribArray(mTextureCoordHandle);
                     break;
             }
         }
     }
 
     public void draw(int mode, int first, int count){
-        gl.glDrawArrays(mode, first, count);
+        GLES20.glUseProgram(mProgram);
+        GLES20.glDrawArrays(mode, first, count);
+        //GLES20.glUseProgram(0);
     }
 
-    public void setWorldMatrix(Matrix4x4 world) {
-        gl.glLoadMatrixf(world.m, 0);
+    public void setWorldMatrix(Matrix4x4 m_world) {
+        //GLES20.glLoadMatrixf(world.m, 0);
+        Matrix4x4 m_projection = camera.getM_projection();
+        Matrix4x4 m_view = camera.getM_view();
+        //m_view = m_view.getInverse();
+        Matrix4x4 m_view_world = Matrix4x4.multiply(m_view, m_world);
+        Matrix4x4 m_projection_view_world = Matrix4x4.multiply(m_projection, m_view_world);
+        //Matrix4x4 m_view_world = Matrix4x4.multiply(m_world, m_view);
+        //Matrix4x4 m_projection_view_world = Matrix4x4.multiply(m_view_world, m_projection);
+        GLES20.glUniformMatrix4fv(mProjViewModelHandle, 1, false, m_projection_view_world.m, 0);
     }
 
     public void setColor(float r, float g, float b, float a){
-        gl.glColor4f(r, g, b, a);
+        //GLES20.glColor4f(r, g, b, a);
     }
 
     /**
@@ -137,11 +203,11 @@ public class GraphicsDevice {
 
         // Texture Handle erstellen
         int[] handles = new int[1];
-        gl.glGenTextures(1, handles, 0);
+        GLES20.glGenTextures(1, handles, 0);
 
         // Texture binden
         int handle = handles[0];
-        gl.glBindTexture(GL10.GL_TEXTURE_2D, handle);
+        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, handle);
 
         Texture texture = new Texture(handle, width, height);
 
@@ -152,7 +218,7 @@ public class GraphicsDevice {
 
         // MipMaps erzeugen und laden
         while (width >= 1 && height >= 1) {
-            GLUtils.texImage2D(GL10.GL_TEXTURE_2D, level, bitmap, 0);
+            GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, level, bitmap, 0);
 
             if(height == 1 || width == 1)
                 break;
@@ -168,13 +234,13 @@ public class GraphicsDevice {
     }
 
     public void bindTexture(Texture texture) {
-        gl.glBindTexture(GL10.GL_TEXTURE_2D, texture.getHandle());
-        gl.glEnable(GL10.GL_TEXTURE_2D);
+        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, texture.getHandle());
+        GLES20.glEnable(GLES20.GL_TEXTURE_2D);
     }
 
     public void unbindTexture() {
-        gl.glBindTexture(GL10.GL_TEXTURE_2D, 0);
-        gl.glDisable(GL10.GL_TEXTURE_2D);
+        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, 0);
+        GLES20.glDisable(GLES20.GL_TEXTURE_2D);
     }
 
 
@@ -186,42 +252,42 @@ public class GraphicsDevice {
     //neu
     public void setAlphaTest(CompareFunction func, float referenceValue) {
         if (func == CompareFunction.ALWAYS) {
-            gl.glDisable(GL10.GL_ALPHA_TEST);
+            //GLES20.glDisable(GLES20.GL_ALPHA_TEST);
         } else {
-            gl.glEnable(GL10.GL_ALPHA_TEST);
-            gl.glAlphaFunc(getGLConstant(func), referenceValue);
+            //GLES20.glEnable(GLES20.GL_ALPHA_TEST);
+            //GLES20.glAlpha(getGLConstant(func), referenceValue);
         }
     }
 
     public void setBlendFactors(BlendFactor srcFactor, BlendFactor dstFactor) {
         if (srcFactor == BlendFactor.ONE && dstFactor == BlendFactor.ZERO) {
-            gl.glDisable(GL10.GL_BLEND);
+            GLES20.glDisable(GLES20.GL_BLEND);
         } else {
-            gl.glEnable(GL10.GL_BLEND);
-            gl.glBlendFunc(getGLConstant(srcFactor), getGLConstant(dstFactor));
+            GLES20.glEnable(GLES20.GL_BLEND);
+            GLES20.glBlendFunc(getGLConstant(srcFactor), getGLConstant(dstFactor));
         }
     }
 
     public void setCullSide(Side side) {
         if (side == Side.NONE) {
-            gl.glDisable(GL10.GL_CULL_FACE);
+            GLES20.glDisable(GLES20.GL_CULL_FACE);
         } else {
-            gl.glEnable(GL10.GL_CULL_FACE);
-            gl.glCullFace(getGLConstant(side));
+            GLES20.glEnable(GLES20.GL_CULL_FACE);
+            GLES20.glCullFace(getGLConstant(side));
         }
     }
 
     public void setDepthTest(CompareFunction func) {
         if (func == CompareFunction.ALWAYS) {
-            gl.glDisable(GL10.GL_DEPTH_TEST);
+            GLES20.glDisable(GLES20.GL_DEPTH_TEST);
         } else {
-            gl.glEnable(GL10.GL_DEPTH_TEST);
-            gl.glDepthFunc(getGLConstant(func));
+            GLES20.glEnable(GLES20.GL_DEPTH_TEST);
+            GLES20.glDepthFunc(getGLConstant(func));
         }
     }
 
     public void setDepthWrite(boolean enabled) {
-        gl.glDepthMask(enabled);
+        GLES20.glDepthMask(enabled);
     }
 
     public void setMaterialColor(float[] color) {
@@ -229,11 +295,11 @@ public class GraphicsDevice {
     }
 
     public void setMaterialColor(float red, float green, float blue, float alpha) {
-        gl.glColor4f(red, green, blue, alpha);
+        //GLES20.glColor4f(red, green, blue, alpha);
     }
 
     public void setTextureBlendColor(float[] color) {
-        gl.glTexEnvfv(GL10.GL_TEXTURE_ENV, GL10.GL_TEXTURE_ENV_COLOR, color, 0);
+        //GLES20.glTexEnvfv(GLES20.GL_TEXTURE_ENV, GLES20.GL_TEXTURE_ENV_COLOR, color, 0);
     }
 
     public void setTextureBlendColor(float red, float green, float blue, float alpha) {
@@ -241,45 +307,45 @@ public class GraphicsDevice {
     }
 
     public void setTextureBlendMode(TextureBlendMode blendMode) {
-        gl.glTexEnvx(GL10.GL_TEXTURE_ENV, GL10.GL_TEXTURE_ENV_MODE, getGLConstant(blendMode));
+        //GLES20.glTexEnvx(GLES20.GL_TEXTURE_ENV, GLES20.GL_TEXTURE_ENV_MODE, getGLConstant(blendMode));
     }
 
     public void setTextureFilters(TextureFilter filterMin, TextureFilter filterMag) {
-        gl.glTexParameterx(GL10.GL_TEXTURE_2D, GL10.GL_TEXTURE_MIN_FILTER, getGLConstant(filterMin));
-        gl.glTexParameterx(GL10.GL_TEXTURE_2D, GL10.GL_TEXTURE_MAG_FILTER, getGLConstant(filterMag));
+        GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MIN_FILTER, getGLConstant(filterMin));
+        GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MAG_FILTER, getGLConstant(filterMag));
     }
 
     public void setTextureWrapMode(TextureWrapMode wrapU, TextureWrapMode wrapV) {
-        gl.glTexParameterx(GL10.GL_TEXTURE_2D, GL10.GL_TEXTURE_WRAP_S, getGLConstant(wrapU));
-        gl.glTexParameterx(GL10.GL_TEXTURE_2D, GL10.GL_TEXTURE_WRAP_T, getGLConstant(wrapV));
+        GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_S, getGLConstant(wrapU));
+        GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_T, getGLConstant(wrapV));
     }
 
     private static int getGLConstant(BlendFactor blendFactor) {
         switch (blendFactor) {
-            case ZERO: 						return GL10.GL_ZERO;
-            case ONE:						return GL10.GL_ONE;
-            case SRC_COLOR:					return GL10.GL_SRC_COLOR;
-            case ONE_MINUS_SRC_COLOR:		return GL10.GL_ONE_MINUS_SRC_COLOR;
-            case DST_COLOR:					return GL10.GL_DST_COLOR;
-            case ONE_MINUS_DST_COLOR:		return GL10.GL_ONE_MINUS_DST_COLOR;
-            case SRC_ALPHA:					return GL10.GL_SRC_ALPHA;
-            case ONE_MINUS_SRC_ALPHA:		return GL10.GL_ONE_MINUS_SRC_ALPHA;
-            case DST_ALPHA:					return GL10.GL_DST_ALPHA;
-            case ONE_MINUS_DST_ALPHA:		return GL10.GL_ONE_MINUS_DST_ALPHA;
+            case ZERO: 						return GLES20.GL_ZERO;
+            case ONE:						return GLES20.GL_ONE;
+            case SRC_COLOR:					return GLES20.GL_SRC_COLOR;
+            case ONE_MINUS_SRC_COLOR:		return GLES20.GL_ONE_MINUS_SRC_COLOR;
+            case DST_COLOR:					return GLES20.GL_DST_COLOR;
+            case ONE_MINUS_DST_COLOR:		return GLES20.GL_ONE_MINUS_DST_COLOR;
+            case SRC_ALPHA:					return GLES20.GL_SRC_ALPHA;
+            case ONE_MINUS_SRC_ALPHA:		return GLES20.GL_ONE_MINUS_SRC_ALPHA;
+            case DST_ALPHA:					return GLES20.GL_DST_ALPHA;
+            case ONE_MINUS_DST_ALPHA:		return GLES20.GL_ONE_MINUS_DST_ALPHA;
             default:						throw new InvalidParameterException("Unknown value.");
         }
     }
 
     private static int getGLConstant(CompareFunction func) {
         switch (func) {
-            case NEVER:						return GL10.GL_NEVER;
-            case ALWAYS:					return GL10.GL_ALWAYS;
-            case LESS:						return GL10.GL_LESS;
-            case LESS_OR_EQUAL:				return GL10.GL_LEQUAL;
-            case EQUAL:						return GL10.GL_EQUAL;
-            case GREATER_OR_EQUAL:			return GL10.GL_GEQUAL;
-            case GREATER:					return GL10.GL_GREATER;
-            case NOT_EQUAL:					return GL10.GL_NOTEQUAL;
+            case NEVER:						return GLES20.GL_NEVER;
+            case ALWAYS:					return GLES20.GL_ALWAYS;
+            case LESS:						return GLES20.GL_LESS;
+            case LESS_OR_EQUAL:				return GLES20.GL_LEQUAL;
+            case EQUAL:						return GLES20.GL_EQUAL;
+            case GREATER_OR_EQUAL:			return GLES20.GL_GEQUAL;
+            case GREATER:					return GLES20.GL_GREATER;
+            case NOT_EQUAL:					return GLES20.GL_NOTEQUAL;
             default:						throw new InvalidParameterException("Unknown value.");
         }
     }
@@ -287,44 +353,67 @@ public class GraphicsDevice {
     private static int getGLConstant(Side side) {
         switch (side) {
             case NONE:						return 0;
-            case FRONT:						return GL10.GL_FRONT;
-            case BACK:						return GL10.GL_BACK;
-            case FRONT_AND_BACK:			return GL10.GL_FRONT_AND_BACK;
+            case FRONT:						return GLES20.GL_FRONT;
+            case BACK:						return GLES20.GL_BACK;
+            case FRONT_AND_BACK:			return GLES20.GL_FRONT_AND_BACK;
             default:						throw new InvalidParameterException("Unknown value.");
         }
     }
 
+    /*
     private static int getGLConstant(TextureBlendMode blendMode) {
         switch (blendMode) {
-            case REPLACE:					return GL10.GL_REPLACE;
-            case MODULATE:					return GL10.GL_MODULATE;
-            case DECAL:						return GL10.GL_DECAL;
-            case BLEND:						return GL10.GL_BLEND;
-            case ADD:						return GL10.GL_ADD;
+            case REPLACE:					return GLES20.GL_REPLACE;
+            case MODULATE:					return GLES20.GL_MODULATE;
+            case DECAL:						return GLES20.GL_DECAL;
+            case BLEND:						return GLES20.GL_BLEND;
+            case ADD:						return GLES20.GL_ADD;
             default:						throw new InvalidParameterException("Unknown value.");
         }
     }
+    */
 
     private static int getGLConstant(TextureFilter filter) {
         switch (filter) {
-            case NEAREST:					return GL10.GL_NEAREST;
-            case NEAREST_MIPMAP_NEAREST:	return GL10.GL_NEAREST_MIPMAP_NEAREST;
-            case NEAREST_MIPMAP_LINEAR:		return GL10.GL_NEAREST_MIPMAP_LINEAR;
-            case LINEAR:					return GL10.GL_LINEAR;
-            case LINEAR_MIPMAP_NEAREST:		return GL10.GL_LINEAR_MIPMAP_NEAREST;
-            case LINEAR_MIPMAP_LINEAR:		return GL10.GL_LINEAR_MIPMAP_LINEAR;
+            case NEAREST:					return GLES20.GL_NEAREST;
+            case NEAREST_MIPMAP_NEAREST:	return GLES20.GL_NEAREST_MIPMAP_NEAREST;
+            case NEAREST_MIPMAP_LINEAR:		return GLES20.GL_NEAREST_MIPMAP_LINEAR;
+            case LINEAR:					return GLES20.GL_LINEAR;
+            case LINEAR_MIPMAP_NEAREST:		return GLES20.GL_LINEAR_MIPMAP_NEAREST;
+            case LINEAR_MIPMAP_LINEAR:		return GLES20.GL_LINEAR_MIPMAP_LINEAR;
             default:						throw new InvalidParameterException("Unknown value.");
         }
     }
 
     private static int getGLConstant(TextureWrapMode wrapMode) {
         switch (wrapMode) {
-            case CLAMP:						return GL10.GL_CLAMP_TO_EDGE;
-            case REPEAT:					return GL10.GL_REPEAT;
+            case CLAMP:						return GLES20.GL_CLAMP_TO_EDGE;
+            case REPEAT:					return GLES20.GL_REPEAT;
             default:						throw new InvalidParameterException("Unknown value.");
         }
     }
 
+    private int loadGLShader(int type, String code) {
+        int shader = GLES20.glCreateShader(type);
+        GLES20.glShaderSource(shader, code);
+        GLES20.glCompileShader(shader);
 
+        // Get the compilation status.
+        final int[] compileStatus = new int[1];
+        GLES20.glGetShaderiv(shader, GLES20.GL_COMPILE_STATUS, compileStatus, 0);
+
+        // If the compilation failed, delete the shader.
+        if (compileStatus[0] == 0) {
+            Log.e(TAG, "Error compiling shader: " + GLES20.glGetShaderInfoLog(shader));
+            GLES20.glDeleteShader(shader);
+            shader = 0;
+        }
+
+        if (shader == 0) {
+            throw new RuntimeException("Error creating shader.");
+        }
+
+        return shader;
+    }
 }
 

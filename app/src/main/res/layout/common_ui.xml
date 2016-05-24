@@ -6,7 +6,7 @@
     android:layout_height="fill_parent" >
 
 
-    <com.google.vrtoolkit.cardboard.CardboardView
+    <com.example.jackson.gameuebung_3.MGDExerciseView
         android:id="@+id/cardboard_view"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
