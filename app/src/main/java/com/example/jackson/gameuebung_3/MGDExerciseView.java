@@ -145,6 +145,8 @@ public class MGDExerciseView extends CardboardView implements CardboardView.Ster
         mCamera = new float[16];
         mView = new float[16];
 
+        this.setZPlanes(1.0f, 1000.0f);
+
     }
 
     @Override
@@ -200,7 +202,8 @@ public class MGDExerciseView extends CardboardView implements CardboardView.Ster
         //GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
         //GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, 0);
         //GLES20.glBindTexture(GL_TEXTURE_EXTERNAL_OES, 0);
-        //mgdExerciseGame.setCameraParameters(eyeTransform.getPerspective(), eyeTransform.getEyeView());
+
+        mgdExerciseGame.setCameraParameters(eyeTransform.getPerspective(), eyeTransform.getEyeView());
         mgdExerciseGame.draw(0);
     }
 

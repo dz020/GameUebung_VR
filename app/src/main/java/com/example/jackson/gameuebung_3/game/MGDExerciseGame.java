@@ -80,7 +80,7 @@ public class MGDExerciseGame extends Game{
         //GLES20.glClearColor(1.0f, 0, 0, 1);
         GLES20.glClear(GLES20.GL_DEPTH_BUFFER_BIT);
         /* cube */
-            //world_cube.rotateY(4); //dreht den stern um sich selbst mit ... grad pro deltaSecond
+            world_cube.rotateY(4); //dreht den stern um sich selbst mit ... grad pro deltaSecond
             Log.d(TAG, "draw: CubeMatrix " + world_cube.toString());
             graphicsDevice.setWorldMatrix(world_cube);
             //graphicsDevice.unbindTexture();
