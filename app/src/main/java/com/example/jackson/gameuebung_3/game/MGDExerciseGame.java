@@ -51,7 +51,7 @@ public class MGDExerciseGame extends Game{
             world_cube.setIdentity(); //skalierung auf 1 statt auf 0 => mal 1
             world_cube.rotateX(0); //rotiert den stern so, dass er direkt zu uns zeigt
             world_cube.rotateY(0);
-            world_cube.translate(0.0f, 2.0f, 10.0f); //x,y,z z verschiebt im raum
+            world_cube.translate(0.0f, 5.0f, -20.0f); //x,y,z z verschiebt im raum
             world_cube.scale(4.0f);
 
         /* straße */

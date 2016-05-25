@@ -52,6 +52,7 @@ public class GraphicsDevice {
     private int mColorHandle;
     private int mTextureCoordHandle;
     private Camera camera;
+    private Matrix4x4 m_world;
 
     public void onSurfaceCreated(GL10 gl){
         //this.gl = gl;
@@ -91,12 +92,14 @@ public class GraphicsDevice {
     }
 
     public void setCamera(Camera camera){
-        Matrix4x4 m_projection = camera.getM_projection();
-        Matrix4x4 m_view = camera.getM_view();
-        Matrix4x4 m_projection_view = Matrix4x4.multiply(m_projection, m_view);
+        //Matrix4x4 m_projection = camera.getM_projection();
+        //Matrix4x4 m_view = camera.getM_view();
+        //Matrix4x4 m_projection_view = Matrix4x4.multiply(m_projection, m_view);
+
         //GLES20.glMatrixMode(GLES20.GL_PROJECTION);
         //GLES20.glLoadMatrixf(m_projection_view.m, 0);
         //GLES20.glMatrixMode(GLES20.GL_MODELVIEW);
+
         this.camera = camera;
     }
 
@@ -163,20 +166,19 @@ public class GraphicsDevice {
 
     public void draw(int mode, int first, int count){
         GLES20.glUseProgram(mProgram);
+
+        Matrix4x4 m_proj = camera.getM_projection();
+        Matrix4x4 m_view = camera.getM_view();
+        Matrix4x4 m_proj_view = Matrix4x4.multiply(m_proj, m_view);
+        Matrix4x4 m_proj_view_world = Matrix4x4.multiply(m_proj_view, m_world);
+        GLES20.glUniformMatrix4fv(mProjViewModelHandle, 1, false, m_proj_view_world.m, 0);
+
         GLES20.glDrawArrays(mode, first, count);
         //GLES20.glUseProgram(0);
     }
 
     public void setWorldMatrix(Matrix4x4 m_world) {
-        //GLES20.glLoadMatrixf(world.m, 0);
-        Matrix4x4 m_projection = camera.getM_projection();
-        Matrix4x4 m_view = camera.getM_view();
-        //m_view = m_view.getInverse();
-        Matrix4x4 m_view_world = Matrix4x4.multiply(m_view, m_world);
-        Matrix4x4 m_projection_view_world = Matrix4x4.multiply(m_projection, m_view_world);
-        //Matrix4x4 m_view_world = Matrix4x4.multiply(m_world, m_view);
-        //Matrix4x4 m_projection_view_world = Matrix4x4.multiply(m_view_world, m_projection);
-        GLES20.glUniformMatrix4fv(mProjViewModelHandle, 1, false, m_projection_view_world.m, 0);
+        this.m_world = m_world;
     }
 
     public void setColor(float r, float g, float b, float a){

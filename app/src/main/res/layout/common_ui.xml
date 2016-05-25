@@ -13,11 +13,12 @@
         android:layout_alignParentTop="true"
         android:layout_alignParentLeft="true" />
 
+    <!--
     <com.example.jackson.gameuebung_3.CardboardOverlayView
         android:id="@+id/overlay"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         android:layout_alignParentLeft="true"
         android:layout_alignParentTop="true" />
-
+    -->
 </RelativeLayout>

@@ -90,7 +90,7 @@ public class MGDExerciseView extends CardboardView implements CardboardView.Ster
     private final int vertexStride = COORDS_PER_VERTEX * 4; // 4 bytes per vertex
     private ByteBuffer indexBuffer;    // Buffer for index-array
     private int texture;
-    private CardboardOverlayView mOverlayView;
+    //private CardboardOverlayView mOverlayView;
 
     private SurfaceTexture surface;
     private float[] mView;
