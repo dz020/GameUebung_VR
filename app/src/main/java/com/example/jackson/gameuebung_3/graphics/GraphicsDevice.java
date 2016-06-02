@@ -167,6 +167,10 @@ public class GraphicsDevice {
     public void draw(int mode, int first, int count){
         GLES20.glUseProgram(mProgram);
 
+        //macht die texture transparent
+        GLES20.glBlendFunc(GLES20.GL_SRC_ALPHA, GLES20.GL_ONE_MINUS_SRC_ALPHA);
+        GLES20.glEnable(GLES20.GL_BLEND);
+
         Matrix4x4 m_proj = camera.getM_projection();
         Matrix4x4 m_view = camera.getM_view();
         Matrix4x4 m_proj_view = Matrix4x4.multiply(m_proj, m_view);

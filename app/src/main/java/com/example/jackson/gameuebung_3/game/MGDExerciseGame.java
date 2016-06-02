@@ -86,7 +86,7 @@ public class MGDExerciseGame extends Game{
             //graphicsDevice.unbindTexture();
             try { //TODO problem bei jedem draw  wird die textur neu geladen
                 InputStream inputStream_box = assetManager.open("box.png");
-                Texture box_texture = graphicsDevice.createTexture(inputStream_box);
+                 Texture box_texture = graphicsDevice.createTexture(inputStream_box);
                 graphicsDevice.bindTexture(box_texture);
             } catch (IOException e) {
                 e.printStackTrace();
