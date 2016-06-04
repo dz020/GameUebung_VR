@@ -13,12 +13,20 @@
         android:layout_alignParentTop="true"
         android:layout_alignParentLeft="true" />
 
-    <!--
     <com.example.jackson.gameuebung_3.CardboardOverlayView
         android:id="@+id/overlay"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentTop="true" />
-    -->
+        android:layout_alignParentTop="true"
+        />
+
+    <!--android.support.v7.widget.AppCompatImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/fadenkreuz"
+        android:id="@+id/fadenkreuz"
+        android:foregroundGravity="center"
+        /-->
+
 </RelativeLayout>

@@ -3,7 +3,6 @@ package com.example.jackson.gameuebung_3.game;
 import android.content.Context;
 import android.content.res.AssetManager;
 import android.opengl.GLES20;
-import android.util.Log;
 
 import com.example.jackson.gameuebung_3.Mesh;
 import com.example.jackson.gameuebung_3.graphics.Camera;
@@ -11,9 +10,9 @@ import com.example.jackson.gameuebung_3.graphics.CompareFunction;
 import com.example.jackson.gameuebung_3.graphics.Texture;
 import com.example.jackson.gameuebung_3.math.Matrix4x4;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.LinkedList;
 
 /**
  * Created by Jackson on 29.03.2016.
@@ -22,10 +21,12 @@ public class MGDExerciseGame extends Game{
     private static String TAG = "MGDExerciseGame";
     private  long lastTime = 0;
     private Mesh cube;
-    private Mesh road;
+    //private Mesh road;
     private Camera camera;
     private Matrix4x4 world_cube;
     private Matrix4x4 word_road;
+    private Texture box_texture;
+    private static LinkedList<Matrix4x4> boxes;
 
     public MGDExerciseGame(Context context) {
         super(context);
@@ -36,7 +37,7 @@ public class MGDExerciseGame extends Game{
     public void initialize() {
         try{
             cube = Mesh.loadFromOBJ(context.getAssets().open("box.obj"));
-            road = Mesh.loadFromOBJ(context.getAssets().open("road.obj"));
+            //road = Mesh.loadFromOBJ(context.getAssets().open("road.obj"));
         }catch(IOException e){
             e.printStackTrace();
         }
@@ -47,22 +48,34 @@ public class MGDExerciseGame extends Game{
         Matrix4x4 viewMatrix = new Matrix4x4();
 
         /* cube */
-            world_cube = new Matrix4x4();
-            world_cube.setIdentity(); //skalierung auf 1 statt auf 0 => mal 1
-            world_cube.rotateX(0); //rotiert den stern so, dass er direkt zu uns zeigt
-            world_cube.rotateY(0);
-            world_cube.translate(0.0f, 5.0f, -20.0f); //x,y,z z verschiebt im raum
-            world_cube.scale(4.0f);
+            boxes = new LinkedList<>();
+            float translation = 0;
+            for(int i=0; i<2; i++){
+                boxes.add(new GameObject(true, translation).getGameObject());
+                translation += 100;
+            }
 
-        /* straße */
+        AssetManager assetManager = context.getAssets();
+        try { //TODO problem bei jedem draw  wird die textur neu geladen
+            InputStream inputStream_box = assetManager.open("box.png");
+            box_texture = graphicsDevice.createTexture(inputStream_box);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        /* straße
             word_road = new Matrix4x4();
             word_road.setIdentity();
             word_road.rotateX(0); //-90 heißt wir gucken genau drauf
             word_road.translate(0.0f, -50.0f, 0.0f); //x,y,z z verschiebt im raum
             word_road.scale(40.0f, 1.0f, 70.0f); //x,y,z, 25 mach die straße breit, wir gucken von oben drauf
-        //---------------------------------------------------
+        //---------------------------------------------------*/
         viewMatrix.translate(0.0f, 10.0f, -30.0f);
         camera.setM_view(viewMatrix);
+
+        // TODO --- TOAST UPDATE GEHT NICHT WEGEN ANDEREM THREAD
+        //MGDExerciseActivity.setToastText(Integer.toString( boxes.size() ));
     }
 
     @Override
@@ -72,7 +85,6 @@ public class MGDExerciseGame extends Game{
 
     @Override
     public void draw(float deltaSeconds) {
-        AssetManager assetManager = context.getAssets();
         graphicsDevice.setCamera(this.camera);
         //graphicsDevice.clear(1.0f, 0.5f, 0.0f, 1.0f, 1.0f); //hintergrund farbe ändern
 
@@ -80,25 +92,21 @@ public class MGDExerciseGame extends Game{
         //GLES20.glClearColor(1.0f, 0, 0, 1);
         GLES20.glClear(GLES20.GL_DEPTH_BUFFER_BIT);
         /* cube */
-            world_cube.rotateY(4); //dreht den stern um sich selbst mit ... grad pro deltaSecond
-            Log.d(TAG, "draw: CubeMatrix " + world_cube.toString());
-            graphicsDevice.setWorldMatrix(world_cube);
-            //graphicsDevice.unbindTexture();
-            try { //TODO problem bei jedem draw  wird die textur neu geladen
-                InputStream inputStream_box = assetManager.open("box.png");
-                 Texture box_texture = graphicsDevice.createTexture(inputStream_box);
+            for(int i=0; i<2; i++){
+                boxes.get(i).rotateY(0.2f);
+                graphicsDevice.setWorldMatrix(boxes.get(i));
+                graphicsDevice.unbindTexture();
                 graphicsDevice.bindTexture(box_texture);
-            } catch (IOException e) {
-                e.printStackTrace();
+                graphicsDevice.bindVertexBuffer(cube.getVertexBuffer());
+                //graphicsDevice.setColor(1.0f, 0.0f, 0.0f, 1.0f);
+                graphicsDevice.setDepthWrite(true);
+                graphicsDevice.setDepthTest(CompareFunction.LESS_OR_EQUAL);
+                graphicsDevice.draw(cube.getMode(), 0, cube.getVertexBuffer().getVertex_amount());
             }
-            graphicsDevice.bindVertexBuffer(cube.getVertexBuffer());
-            //graphicsDevice.setColor(1.0f, 0.0f, 0.0f, 1.0f);
-            graphicsDevice.setDepthWrite(true);
-            graphicsDevice.setDepthTest(CompareFunction.LESS_OR_EQUAL);
-            graphicsDevice.draw(cube.getMode(), 0, cube.getVertexBuffer().getVertex_amount());
 
 
-       /* straße */
+
+       /* straße
             graphicsDevice.setWorldMatrix(word_road);
             //graphicsDevice.setColor(0.0f, 1.0f, 0.0f, 1.0f);
             try {
@@ -111,7 +119,7 @@ public class MGDExerciseGame extends Game{
                 e.printStackTrace();
             }
             graphicsDevice.bindVertexBuffer(road.getVertexBuffer());
-            graphicsDevice.draw(road.getMode(), 0, road.getVertexBuffer().getVertex_amount());
+            graphicsDevice.draw(road.getMode(), 0, road.getVertexBuffer().getVertex_amount());*/
     }
 
     @Override
@@ -132,4 +140,9 @@ public class MGDExerciseGame extends Game{
         camera.setM_projection(new Matrix4x4(perspective));
         camera.setM_view(new Matrix4x4(eyeView));
     }
+
+    public static int getBubbleAmount(){
+        return boxes.size();
+    }
+
 }

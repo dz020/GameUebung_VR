@@ -30,6 +30,7 @@ public class MGDExerciseActivity extends CardboardActivity {
 
     private static final String TAG = "MGDExerciseActivity";
     private MGDExerciseView view; //unsere view
+    static CardboardOverlayView mOverlayView;
 
     /**
      * Sets the view to our CardboardView and initializes the transformation matrices we will use
@@ -61,6 +62,7 @@ public class MGDExerciseActivity extends CardboardActivity {
         view.setRenderer(view);
         setCardboardView(view);
         /* bis hier kamera welt */
+        mOverlayView = (CardboardOverlayView) findViewById(R.id.overlay);
     }
 
     /**
@@ -81,5 +83,16 @@ public class MGDExerciseActivity extends CardboardActivity {
     protected void onResume() {
         super.onResume(); //erst die activity starten
         view.onResume();
+        showToast(0, 0);
+
     }
+
+    public static void showToast(int x, int y){
+        mOverlayView.show3DToast(x + " von " + y + " Bubbles");
+    }
+
+    public static void setToastText(String text){
+        mOverlayView.setText(text);
+    }
+
 }

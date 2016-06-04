@@ -90,33 +90,28 @@ public class MGDExerciseView extends CardboardView implements CardboardView.Ster
     private final int vertexStride = COORDS_PER_VERTEX * 4; // 4 bytes per vertex
     private ByteBuffer indexBuffer;    // Buffer for index-array
     private int texture;
-    //private CardboardOverlayView mOverlayView;
 
     private SurfaceTexture surface;
     private float[] mView;
     private float[] mCamera;
     private float[] mModelCube;
 
-    public void startCamera(int texture)
-    {
+    public void startCamera(int texture) {
         surface = new SurfaceTexture(texture);
         surface.setOnFrameAvailableListener(this);
 
         camera = Camera.open();
 
-        try
-        {
+        try {
             camera.setPreviewTexture(surface);
             camera.startPreview();
         }
-        catch (IOException ioe)
-        {
+        catch (IOException ioe) {
             Log.w("MainActivity","CAM LAUNCH FAILED");
         }
     }
 
-    static private int createTexture()
-    {
+    static private int createTexture() {
         int[] texture = new int[1];
 
         GLES20.glGenTextures(1,texture, 0);
@@ -252,6 +247,7 @@ public class MGDExerciseView extends CardboardView implements CardboardView.Ster
 
         texture = createTexture();
         startCamera(texture);
+
         mgdExerciseGame.onSurfaceCreated(null, eglConfig);
         mgdExerciseGame.initialize();
     }
