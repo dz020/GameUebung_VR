@@ -16,9 +16,13 @@ public abstract class Game implements android.opengl.GLSurfaceView.Renderer {
     protected GraphicsDevice graphicsDevice;
     private  long lastTime = 0;
     protected Context context;
+    protected int screenWidth;
+    protected int screenHeight;
 
     /* Konstruktor */
     public Game(Context context){
+        this.screenWidth = 1;
+        this.screenHeight = 1;
         this.context = context;
         this.graphicsDevice = new GraphicsDevice();
     }
@@ -32,6 +36,8 @@ public abstract class Game implements android.opengl.GLSurfaceView.Renderer {
     @Override
     public void onSurfaceChanged(GL10 gl, int width, int height) {
         graphicsDevice.resize(width, height);
+        screenWidth = width;
+        screenHeight = height;
         this.resize(width, height);
         loadContent();
     }
@@ -53,4 +59,5 @@ public abstract class Game implements android.opengl.GLSurfaceView.Renderer {
 
     //damit falls app in hintergrund gerät und ram der grafikkarte durch andere app ausgetauscht wird, die textur neu geladen wird
     public abstract void loadContent();
+
 }
