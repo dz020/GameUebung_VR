@@ -18,9 +18,12 @@ package com.example.jackson.gameuebung_3;
 
 import android.media.MediaPlayer;
 import android.os.Bundle;
+import android.os.Handler;
+import android.util.Log;
 import android.view.Window;
 import android.view.WindowManager;
 
+import com.example.jackson.gameuebung_3.audio.SoundMeter;
 import com.google.vrtoolkit.cardboard.CardboardActivity;
 
 
@@ -30,6 +33,11 @@ public class MGDExerciseActivity extends CardboardActivity {
     private MGDExerciseView view; //unsere view
     static CardboardOverlayView mOverlayView;
     private MediaPlayer mp;
+    private SoundMeter mSensor;
+    private int mThreshold = 4;
+    private Handler mHandler = new Handler();
+    private static final int POLL_INTERVAL = 300;
+
 
     /**
      * Sets the view to our CardboardView and initializes the transformation matrices we will use
@@ -48,6 +56,9 @@ public class MGDExerciseActivity extends CardboardActivity {
         view.setRenderer(view);
         setCardboardView(view);
         mOverlayView = (CardboardOverlayView) findViewById(R.id.overlay);
+        mp = MediaPlayer.create(getApplicationContext(), R.raw.vogelzwitschern);
+        mp.setLooping(true);
+        mSensor = new SoundMeter();
     }
 
     /**
@@ -63,6 +74,7 @@ public class MGDExerciseActivity extends CardboardActivity {
         view.onPause(); //erst unsere view pausieren
         super.onPause();
         mp.release();
+        mSensor.stop();
     }
 
     @Override
@@ -70,17 +82,39 @@ public class MGDExerciseActivity extends CardboardActivity {
         super.onResume(); //erst die activity starten
         view.onResume();
         showToast();
-        mp = MediaPlayer.create(getApplicationContext(), R.raw.vogelzwitschern);
-        mp.setLooping(true);
         mp.start();
+        mSensor.start();
+        Thread mythread = new Thread(mPollTask);
+        mythread.start();
     }
 
     public static void showToast(){
-        mOverlayView.show3DToast(0 + " von " + 0 + " Bubbles");
+        //mOverlayView.show3DToast(0 + " von " + 0 + " Bubbles");
     }
 
     public static void setToastText(String text){
         mOverlayView.setText(text);
     }
+
+    private void callForHelp(double amplitude) {
+        Log.e("activity", "callForHelp"+ amplitude);
+        // Show alert when noise thersold crossed
+        //Toast.makeText(getApplicationContext(), "Noise Thersold Crossed, do here your stuff.", Toast.LENGTH_LONG).show();
+        mOverlayView.show3DToast("noise detected " + amplitude);
+    }
+
+    // Create runnable thread to Monitor Voice
+    final Runnable mPollTask = new Runnable() {
+        public void run() {
+            double amp = mSensor.getAmplitude();
+            Log.e("Noise", "runnable mPollTask " + amp);
+            if ((amp > mThreshold)) {
+                callForHelp(amp);
+                Log.e("Noise", "==== onCreate ===");
+            }
+            // Runnable(mPollTask) will again execute after POLL_INTERVAL
+            mHandler.postDelayed(mPollTask, POLL_INTERVAL);
+        }
+    };
 
 }
