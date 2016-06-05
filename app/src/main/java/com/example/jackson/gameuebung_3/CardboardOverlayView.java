@@ -44,8 +44,7 @@ public class CardboardOverlayView extends LinearLayout {
         super(context, attrs);
         setOrientation(HORIZONTAL);
 
-        LayoutParams params = new LayoutParams(
-            LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT, 1.0f);
+        LayoutParams params = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT, 1.0f);
         params.setMargins(0, 0, 0, 0);
 
         mLeftView = new CardboardOverlayEyeView(context, attrs);

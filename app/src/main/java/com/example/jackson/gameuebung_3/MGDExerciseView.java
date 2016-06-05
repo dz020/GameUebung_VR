@@ -149,8 +149,7 @@ public class MGDExerciseView extends CardboardView implements CardboardView.Ster
 
 
         /* zeichnet die kamera in den hintergrund */
-        GLES20.glDrawElements(GLES20.GL_TRIANGLES, drawOrder.length,
-                GLES20.GL_UNSIGNED_SHORT, drawListBuffer);
+        GLES20.glDrawElements(GLES20.GL_TRIANGLES, drawOrder.length, GLES20.GL_UNSIGNED_SHORT, drawListBuffer);
 
 
         // Disable vertex array
@@ -176,7 +175,7 @@ public class MGDExerciseView extends CardboardView implements CardboardView.Ster
     @Override
     public void onSurfaceCreated(EGLConfig eglConfig) {
         Log.i(TAG, "onSurfaceCreated");
-        GLES20.glClearColor(0.1f, 0.1f, 0.1f, 0.5f); // Dark background so text shows up well
+        //GLES20.glClearColor(0.1f, 0.1f, 0.1f, 0.5f); // Dark background so text shows up well
 
         ByteBuffer bb = ByteBuffer.allocateDirect(squareVertices.length * 4);
         bb.order(ByteOrder.nativeOrder());
@@ -206,7 +205,9 @@ public class MGDExerciseView extends CardboardView implements CardboardView.Ster
                 "gl_Position = position;" +
                 "textureCoordinate = inputTextureCoordinate;" +
                 "}";
+
         int vertexShader = loadGLShader(GLES20.GL_VERTEX_SHADER, vertexShaderCode);
+
         String fragmentShaderCode = "#extension GL_OES_EGL_image_external : require\n" +
                 "precision mediump float;" +
                 "varying vec2 textureCoordinate;                            \n" +
@@ -215,6 +216,7 @@ public class MGDExerciseView extends CardboardView implements CardboardView.Ster
                 "  gl_FragColor = texture2D( s_texture, textureCoordinate );\n" +
                 //"  gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);\n" +
                 "}";
+
         int fragmentShader = loadGLShader(GLES20.GL_FRAGMENT_SHADER, fragmentShaderCode);
 
         mProgram = GLES20.glCreateProgram();             // create empty OpenGL ES Program

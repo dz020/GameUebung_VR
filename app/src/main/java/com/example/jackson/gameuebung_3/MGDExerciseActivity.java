@@ -16,6 +16,7 @@
 
 package com.example.jackson.gameuebung_3;
 
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.view.Window;
 import android.view.WindowManager;
@@ -28,6 +29,7 @@ public class MGDExerciseActivity extends CardboardActivity {
     private static final String TAG = "MGDExerciseActivity";
     private MGDExerciseView view; //unsere view
     static CardboardOverlayView mOverlayView;
+    private MediaPlayer mp;
 
     /**
      * Sets the view to our CardboardView and initializes the transformation matrices we will use
@@ -42,7 +44,7 @@ public class MGDExerciseActivity extends CardboardActivity {
         setContentView(R.layout.common_ui);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         view = (MGDExerciseView) findViewById(R.id.cardboard_view);
-        view.setEGLConfigChooser(8 , 8, 8, 8, 16, 0);
+        view.setEGLConfigChooser(8, 8, 8, 8, 16, 0);
         view.setRenderer(view);
         setCardboardView(view);
         mOverlayView = (CardboardOverlayView) findViewById(R.id.overlay);
@@ -60,6 +62,7 @@ public class MGDExerciseActivity extends CardboardActivity {
     protected void onPause() {
         view.onPause(); //erst unsere view pausieren
         super.onPause();
+        mp.release();
     }
 
     @Override
@@ -67,7 +70,9 @@ public class MGDExerciseActivity extends CardboardActivity {
         super.onResume(); //erst die activity starten
         view.onResume();
         showToast();
-
+        mp = MediaPlayer.create(getApplicationContext(), R.raw.vogelzwitschern);
+        mp.setLooping(true);
+        mp.start();
     }
 
     public static void showToast(){
