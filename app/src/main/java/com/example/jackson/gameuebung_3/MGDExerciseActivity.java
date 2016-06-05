@@ -23,9 +23,6 @@ import android.view.WindowManager;
 import com.google.vrtoolkit.cardboard.CardboardActivity;
 
 
-/**
- * A Cardboard sample application.
- */
 public class MGDExerciseActivity extends CardboardActivity {
 
     private static final String TAG = "MGDExerciseActivity";
@@ -41,19 +38,6 @@ public class MGDExerciseActivity extends CardboardActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
-
-        /* wenn einkommentiert, dann 3d welt */
-        /* von hier 3d welt
-        mgdExerciseView = new MGDExerciseView(getApplicationContext()); //view erzeugen
-        setContentView(mgdExerciseView); //view setzen
-        cardboardView = (CardboardView) findViewById(R.id.cardboard_view);
-        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
-        /* bis hier 3d welt*/
-
-
-        /* wenn einkommentiert, dann kamera als welt */
-        /* von hier kamera welt */
-        //mgdExerciseView = new MGDExerciseView(getApplicationContext()); //view erzeugen
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.common_ui);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
@@ -61,7 +45,6 @@ public class MGDExerciseActivity extends CardboardActivity {
         view.setEGLConfigChooser(8 , 8, 8, 8, 16, 0);
         view.setRenderer(view);
         setCardboardView(view);
-        /* bis hier kamera welt */
         mOverlayView = (CardboardOverlayView) findViewById(R.id.overlay);
     }
 
@@ -83,12 +66,12 @@ public class MGDExerciseActivity extends CardboardActivity {
     protected void onResume() {
         super.onResume(); //erst die activity starten
         view.onResume();
-        showToast(0, 0);
+        showToast();
 
     }
 
-    public static void showToast(int x, int y){
-        mOverlayView.show3DToast(x + " von " + y + " Bubbles");
+    public static void showToast(){
+        mOverlayView.show3DToast(0 + " von " + 0 + " Bubbles");
     }
 
     public static void setToastText(String text){

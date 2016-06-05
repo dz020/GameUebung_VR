@@ -19,15 +19,11 @@ public class Matrix4x4 {
             if (m.length < 16) {
                 throw new ArrayIndexOutOfBoundsException();
             }
-            for(int i = 0; i < 16; ++i){
-                this.m[i] = m[i];
-            }
+            System.arraycopy(m, 0, this.m, 0, 16);
          }
 
         public Matrix4x4(Matrix4x4 m){ //existieren Matrix übergeben
-            for(int i = 0; i < 16; ++i) {
-                this.m[i] = m.m[i];
-            }
+            System.arraycopy(m.m, 0, this.m, 0, 16);
         }
 
         public Matrix4x4( // 4x4 Matrix erzeugen mit Werten als Übergabeparamter
@@ -136,7 +132,7 @@ public class Matrix4x4 {
         public Matrix4x4 setPerspectiveProjection(
                 float top, float right, float bottom, float left, float near, float far
         ){
-            Matrix.frustumM(m, 0, left, right, bottom, top, near, far);
+            Matrix.frustumM(m, 0, left, right, bottom, 0.1f, 0.1f, far);
             return this;
         }
 

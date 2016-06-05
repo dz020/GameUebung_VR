@@ -135,17 +135,17 @@ public class Mesh {
         int elementOffset = 0;
         VertexElement[] elements = new VertexElement[numElements];
         if (hasPositionData) {
-            elements[elementIndex] = new VertexElement(elementOffset, vertexSize, GL10.GL_FLOAT, 3, VertexElement.VertexSemantic.VERTEX_ELEMENT_POSITION);
+            elements[elementIndex] = new VertexElement(elementOffset, vertexSize, 3, VertexElement.VertexSemantic.VERTEX_ELEMENT_POSITION);
             elementOffset += 12;
             elementIndex++;
         }
         if (hasTexCoordData) {
-            elements[elementIndex] = new VertexElement(elementOffset, vertexSize, GL10.GL_FLOAT, 2, VertexElement.VertexSemantic.VERTEX_ELEMENT_TEXCOORD);
+            elements[elementIndex] = new VertexElement(elementOffset, vertexSize, 2, VertexElement.VertexSemantic.VERTEX_ELEMENT_TEXCOORD);
             elementOffset += 8;
             elementIndex++;
         }
 
-        ByteBuffer buffer = ByteBuffer.allocateDirect(vertexSize * indexGroups.size());
+        ByteBuffer buffer = ByteBuffer.allocateDirect(vertexSize * (indexGroups != null ? indexGroups.size() : 0));
         buffer.order(ByteOrder.nativeOrder());
 
         for (short[] indexGroup : indexGroups) {

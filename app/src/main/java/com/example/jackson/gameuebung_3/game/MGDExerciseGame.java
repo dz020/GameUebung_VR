@@ -19,12 +19,8 @@ import java.util.LinkedList;
  */
 public class MGDExerciseGame extends Game{
     private static String TAG = "MGDExerciseGame";
-    private  long lastTime = 0;
     private Mesh cube;
-    //private Mesh road;
     private Camera camera;
-    private Matrix4x4 world_cube;
-    private Matrix4x4 word_road;
     private Texture box_texture;
     private static LinkedList<Matrix4x4> boxes;
 
@@ -37,7 +33,6 @@ public class MGDExerciseGame extends Game{
     public void initialize() {
         try{
             cube = Mesh.loadFromOBJ(context.getAssets().open("box.obj"));
-            //road = Mesh.loadFromOBJ(context.getAssets().open("road.obj"));
         }catch(IOException e){
             e.printStackTrace();
         }
@@ -51,7 +46,7 @@ public class MGDExerciseGame extends Game{
             boxes = new LinkedList<>();
             float translation = 0;
             for(int i=0; i<2; i++){
-                boxes.add(new GameObject(true, translation).getGameObject());
+                boxes.add(new GameObject(translation).getGameObject());
                 translation += 100;
             }
 
@@ -64,13 +59,6 @@ public class MGDExerciseGame extends Game{
             e.printStackTrace();
         }
 
-        /* straße
-            word_road = new Matrix4x4();
-            word_road.setIdentity();
-            word_road.rotateX(0); //-90 heißt wir gucken genau drauf
-            word_road.translate(0.0f, -50.0f, 0.0f); //x,y,z z verschiebt im raum
-            word_road.scale(40.0f, 1.0f, 70.0f); //x,y,z, 25 mach die straße breit, wir gucken von oben drauf
-        //---------------------------------------------------*/
         viewMatrix.translate(0.0f, 10.0f, -30.0f);
         camera.setM_view(viewMatrix);
 
@@ -89,7 +77,6 @@ public class MGDExerciseGame extends Game{
         //graphicsDevice.clear(1.0f, 0.5f, 0.0f, 1.0f, 1.0f); //hintergrund farbe ändern
 
         GLES20.glClearDepthf(1.0f);
-        //GLES20.glClearColor(1.0f, 0, 0, 1);
         GLES20.glClear(GLES20.GL_DEPTH_BUFFER_BIT);
         /* cube */
             for(int i=0; i<2; i++){
@@ -98,28 +85,10 @@ public class MGDExerciseGame extends Game{
                 graphicsDevice.unbindTexture();
                 graphicsDevice.bindTexture(box_texture);
                 graphicsDevice.bindVertexBuffer(cube.getVertexBuffer());
-                //graphicsDevice.setColor(1.0f, 0.0f, 0.0f, 1.0f);
                 graphicsDevice.setDepthWrite(true);
                 graphicsDevice.setDepthTest(CompareFunction.LESS_OR_EQUAL);
-                graphicsDevice.draw(cube.getMode(), 0, cube.getVertexBuffer().getVertex_amount());
+                graphicsDevice.draw(cube.getMode(), cube.getVertexBuffer().getVertex_amount());
             }
-
-
-
-       /* straße
-            graphicsDevice.setWorldMatrix(word_road);
-            //graphicsDevice.setColor(0.0f, 1.0f, 0.0f, 1.0f);
-            try {
-                InputStream inputStream_road = assetManager.open("road.png");
-                Texture road_texture = graphicsDevice.createTexture(inputStream_road);
-                graphicsDevice.bindTexture(road_texture);
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            graphicsDevice.bindVertexBuffer(road.getVertexBuffer());
-            graphicsDevice.draw(road.getMode(), 0, road.getVertexBuffer().getVertex_amount());*/
     }
 
     @Override

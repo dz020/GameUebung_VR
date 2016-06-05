@@ -34,9 +34,7 @@ public class AABB implements Shape2D {
 
 	public boolean intersects(Point point) {
 		Vector2 position = point.getPosition();
-		if (position.getX() < min.getX() || position.getX() > max.getX()) return false;
-		if (position.getY() < min.getY() || position.getY() > max.getY()) return false;
-		return true;
+		return !(position.getX() < min.getX() || position.getX() > max.getX()) && !(position.getY() < min.getY() || position.getY() > max.getY());
 	}
 
 	public boolean intersects(Circle circle) {
@@ -54,9 +52,7 @@ public class AABB implements Shape2D {
 	}
 
 	public boolean intersects(AABB box) {
-		if (this.min.getX() >= box.getMax().getX() || this.max.getX() <= box.getMin().getX()) return false;
-		if (this.min.getY() >= box.getMax().getY() || this.max.getY() <= box.getMin().getY()) return false;		
-		return true;
+		return !(this.min.getX() >= box.getMax().getX() || this.max.getX() <= box.getMin().getX()) && !(this.min.getY() >= box.getMax().getY() || this.max.getY() <= box.getMin().getY());
 	}
 
 	public Vector2 getPosition() {

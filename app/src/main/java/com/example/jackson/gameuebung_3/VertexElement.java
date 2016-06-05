@@ -10,7 +10,7 @@ public class VertexElement {
         VERTEX_ELEMENT_POSITION,
         VERTEX_ELEMENT_COLOR,
         VERTEX_ELEMENT_TEXCOORD
-    };
+    }
 
     private int offset;
     private int stride;
@@ -18,10 +18,10 @@ public class VertexElement {
     private int count;
     private VertexSemantic semantic;
 
-    public VertexElement(int offset, int stride, int type, int count, VertexSemantic semantic){
+    public VertexElement(int offset, int stride, int count, VertexSemantic semantic){
         this.offset = offset;
         this.stride = stride;
-        this.type = type;
+        this.type = javax.microedition.khronos.opengles.GL10.GL_FLOAT;
         this.count = count;
         this.semantic = semantic;
     }

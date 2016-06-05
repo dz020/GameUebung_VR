@@ -33,9 +33,7 @@ public class Point implements Shape2D {
 	}
 
 	public boolean intersects(AABB box) {
-		if (this.position.getX() < box.getMin().getX() || this.position.getX() > box.getMax().getX()) return false;
-		if (this.position.getY() < box.getMin().getY() || this.position.getY() > box.getMax().getY()) return false;
-		return true;
+		return !(this.position.getX() < box.getMin().getX() || this.position.getX() > box.getMax().getX()) && !(this.position.getY() < box.getMin().getY() || this.position.getY() > box.getMax().getY());
 	}
 
 	public Vector2 getPosition() {

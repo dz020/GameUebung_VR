@@ -23,7 +23,7 @@ public class Renderer {
 
         VertexBuffer vertexBuffer = mesh.getVertexBuffer();
         graphicsDevice.bindVertexBuffer(vertexBuffer);
-        graphicsDevice.draw(mesh.getMode(), 0, vertexBuffer.getVertex_amount());
+        graphicsDevice.draw(mesh.getMode(), vertexBuffer.getVertex_amount());
         graphicsDevice.unbindVertexBuffer(vertexBuffer);
     }
 

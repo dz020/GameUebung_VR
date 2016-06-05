@@ -26,26 +26,6 @@ public class GraphicsDevice {
     private static final String TAG = "GraphicsDevice";
     private GL10 gl;
 
-    private final String vertexShaderCode =
-            "uniform mat4 projViewModel; " +
-            "attribute vec4 position;" +
-                    "attribute vec2 inputTextureCoordinate;" +
-                    "varying vec2 textureCoordinate;" +
-                    "void main()" +
-                    "{"+
-                    "gl_Position = projViewModel * position;"+
-                    "textureCoordinate = inputTextureCoordinate;" +
-                    "}";
-
-    private final String fragmentShaderCode =
-                    "precision mediump float;\n" +
-                    "varying vec2 textureCoordinate;                            \n" +
-                    "uniform sampler2D s_texture;               \n" +
-                    "void main(void) {" +
-                    "  gl_FragColor = texture2D( s_texture, textureCoordinate );\n" +
-                    //"  gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);\n" +
-                    "}";
-
     private int mProgram;
     private int mProjViewModelHandle;
     private int mPositionHandle, mPositionHandle2;
@@ -58,7 +38,23 @@ public class GraphicsDevice {
         //this.gl = gl;
         //GLES20 gl2;
         //GLES20.glHint(GLES20.GL_PERSPECTIVE_CORRECTION_HINT, GLES20.GL_NICEST);
+        String vertexShaderCode = "uniform mat4 projViewModel; " +
+                "attribute vec4 position;" +
+                "attribute vec2 inputTextureCoordinate;" +
+                "varying vec2 textureCoordinate;" +
+                "void main()" +
+                "{" +
+                "gl_Position = projViewModel * position;" +
+                "textureCoordinate = inputTextureCoordinate;" +
+                "}";
         int vertexShader = loadGLShader(GLES20.GL_VERTEX_SHADER, vertexShaderCode);
+        String fragmentShaderCode = "precision mediump float;\n" +
+                "varying vec2 textureCoordinate;                            \n" +
+                "uniform sampler2D s_texture;               \n" +
+                "void main(void) {" +
+                "  gl_FragColor = texture2D( s_texture, textureCoordinate );\n" +
+                //"  gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);\n" +
+                "}";
         int fragmentShader = loadGLShader(GLES20.GL_FRAGMENT_SHADER, fragmentShaderCode);
 
         mProgram = GLES20.glCreateProgram();             // create empty OpenGL ES Program
@@ -92,14 +88,6 @@ public class GraphicsDevice {
     }
 
     public void setCamera(Camera camera){
-        //Matrix4x4 m_projection = camera.getM_projection();
-        //Matrix4x4 m_view = camera.getM_view();
-        //Matrix4x4 m_projection_view = Matrix4x4.multiply(m_projection, m_view);
-
-        //GLES20.glMatrixMode(GLES20.GL_PROJECTION);
-        //GLES20.glLoadMatrixf(m_projection_view.m, 0);
-        //GLES20.glMatrixMode(GLES20.GL_MODELVIEW);
-
         this.camera = camera;
     }
 
@@ -164,7 +152,7 @@ public class GraphicsDevice {
         }
     }
 
-    public void draw(int mode, int first, int count){
+    public void draw(int mode, int count){
         GLES20.glUseProgram(mProgram);
 
         //macht die texture transparent
@@ -177,7 +165,7 @@ public class GraphicsDevice {
         Matrix4x4 m_proj_view_world = Matrix4x4.multiply(m_proj_view, m_world);
         GLES20.glUniformMatrix4fv(mProjViewModelHandle, 1, false, m_proj_view_world.m, 0);
 
-        GLES20.glDrawArrays(mode, first, count);
+        GLES20.glDrawArrays(mode, 0, count);
         //GLES20.glUseProgram(0);
     }
 
@@ -365,19 +353,6 @@ public class GraphicsDevice {
             default:						throw new InvalidParameterException("Unknown value.");
         }
     }
-
-    /*
-    private static int getGLConstant(TextureBlendMode blendMode) {
-        switch (blendMode) {
-            case REPLACE:					return GLES20.GL_REPLACE;
-            case MODULATE:					return GLES20.GL_MODULATE;
-            case DECAL:						return GLES20.GL_DECAL;
-            case BLEND:						return GLES20.GL_BLEND;
-            case ADD:						return GLES20.GL_ADD;
-            default:						throw new InvalidParameterException("Unknown value.");
-        }
-    }
-    */
 
     private static int getGLConstant(TextureFilter filter) {
         switch (filter) {

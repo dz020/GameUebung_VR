@@ -57,7 +57,7 @@ public class CardboardOverlayView extends LinearLayout {
         addView(mRightView);
 
         // Set some reasonable defaults.
-        setDepthOffset(0.016f);
+        setDepthOffset();
         setColor(Color.rgb(150, 255, 180));
         setVisibility(View.VISIBLE);
 
@@ -66,12 +66,11 @@ public class CardboardOverlayView extends LinearLayout {
         Drawable fadenkreuz = getResources().getDrawable(R.drawable.fadenkreuz);
         mLeftView.imageView.setImageDrawable(fadenkreuz);
         mRightView.imageView.setImageDrawable(fadenkreuz);
-        //addView(img);
     }
 
     public void show3DToast(String message) {
         setText(message);
-        setTextAlpha(1f);
+        setTextAlpha();
         /*mTextFadeAnimation.setAnimationListener(new EndAnimationListener() {
             @Override
             public void onAnimationEnd(Animation animation) {
@@ -86,9 +85,9 @@ public class CardboardOverlayView extends LinearLayout {
         @Override public void onAnimationStart(Animation animation) {}
     }
 
-    private void setDepthOffset(float offset) {
-        mLeftView.setOffset(offset);
-        mRightView.setOffset(-offset);
+    private void setDepthOffset() {
+        mLeftView.setOffset(0.016f);
+        mRightView.setOffset(-0.016f);
     }
 
     public void setText(String text) {
@@ -96,9 +95,9 @@ public class CardboardOverlayView extends LinearLayout {
         mRightView.setText(text);
     }
 
-    private void setTextAlpha(float alpha) {
-        mLeftView.setTextViewAlpha(alpha);
-        mRightView.setTextViewAlpha(alpha);
+    private void setTextAlpha() {
+        mLeftView.setTextViewAlpha(1f);
+        mRightView.setTextViewAlpha(1f);
     }
 
     private void setColor(int color) {

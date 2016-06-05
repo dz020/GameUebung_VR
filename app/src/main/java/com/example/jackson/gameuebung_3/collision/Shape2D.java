@@ -8,12 +8,12 @@ import com.example.jackson.gameuebung_3.math.Vector2;
  */
 public interface Shape2D {
 
-    public boolean intersects(Shape2D shape);
-    public boolean intersects(Point point);
-    public boolean intersects(Circle circle);
-    public boolean intersects(AABB box);
+    boolean intersects(Shape2D shape);
+    boolean intersects(Point point);
+    boolean intersects(Circle circle);
+    boolean intersects(AABB box);
 
-    public Vector2 getPosition();
-    public void setPosition(Vector2 position);
+    Vector2 getPosition();
+    void setPosition(Vector2 position);
 
 }
