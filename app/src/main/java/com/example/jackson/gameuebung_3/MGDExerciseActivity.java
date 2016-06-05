@@ -84,12 +84,19 @@ public class MGDExerciseActivity extends CardboardActivity {
         mSensor.stop();
     }
 
+    int call_counter = 0;
     @Override
     protected void onResume() {
         super.onResume(); //erst die activity starten
         view.onResume();
         showToast();
-        mp.start();
+        Log.e("onresume", "wurde " + call_counter + " mal aufgerufen");
+        if(call_counter == 0){
+            mp.start();
+        }else{
+            //jetzt läuft zwar hintergrundmusik nicht weiter, aber dafür schmiert die app nicht ab
+        }
+        call_counter++;
         mSensor.start();
         Thread mythread = new Thread(mPollTask);
         mythread.start();
@@ -118,7 +125,6 @@ public class MGDExerciseActivity extends CardboardActivity {
             Log.e("Noise", "runnable mPollTask " + amp);
             if ((amp > mThreshold)) {
                 callForHelp(amp);
-                Log.e("Noise", "==== onCreate ===");
             }
             // Runnable(mPollTask) will again execute after POLL_INTERVAL
             mHandler.postDelayed(mPollTask, POLL_INTERVAL);
