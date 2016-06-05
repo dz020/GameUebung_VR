@@ -16,7 +16,9 @@
 
 package com.example.jackson.gameuebung_3;
 
+import android.media.AudioManager;
 import android.media.MediaPlayer;
+import android.media.SoundPool;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
@@ -34,9 +36,11 @@ public class MGDExerciseActivity extends CardboardActivity {
     static CardboardOverlayView mOverlayView;
     private MediaPlayer mp;
     private SoundMeter mSensor;
-    private int mThreshold = 4;
+    private int mThreshold = 10;
     private Handler mHandler = new Handler();
-    private static final int POLL_INTERVAL = 300;
+    private static final int POLL_INTERVAL = 600; //ist auch die verzögerung bis laser sound erklingt
+    private SoundPool soundPool;
+    private int laserSound;
 
 
     /**
@@ -57,8 +61,11 @@ public class MGDExerciseActivity extends CardboardActivity {
         setCardboardView(view);
         mOverlayView = (CardboardOverlayView) findViewById(R.id.overlay);
         mp = MediaPlayer.create(getApplicationContext(), R.raw.vogelzwitschern);
+        mp.setVolume(0.7f, 0.7f);
         mp.setLooping(true);
         mSensor = new SoundMeter();
+        soundPool = new SoundPool(5, AudioManager.STREAM_MUSIC, 0);
+        laserSound = soundPool.load(getApplicationContext(), R.raw.laser, 1); // in 2nd param u have to pass your desire ringtone
     }
 
     /**
@@ -101,6 +108,7 @@ public class MGDExerciseActivity extends CardboardActivity {
         // Show alert when noise thersold crossed
         //Toast.makeText(getApplicationContext(), "Noise Thersold Crossed, do here your stuff.", Toast.LENGTH_LONG).show();
         mOverlayView.show3DToast("noise detected " + amplitude);
+        soundPool.play(laserSound, 0.05f, 0.05f, 0, 0, 1);
     }
 
     // Create runnable thread to Monitor Voice

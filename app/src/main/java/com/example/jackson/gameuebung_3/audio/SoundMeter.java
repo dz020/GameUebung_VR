@@ -66,4 +66,8 @@ public class SoundMeter {
         mEMA = EMA_FILTER * amp + (1.0 - EMA_FILTER) * mEMA;
         return mEMA;
     }
+
+    public double getMaxAmplitude(){
+        return mRecorder.getMaxAmplitude();
+    }
 }
