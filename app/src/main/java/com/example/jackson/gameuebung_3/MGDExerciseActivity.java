@@ -17,7 +17,6 @@
 package com.example.jackson.gameuebung_3;
 
 import android.media.AudioManager;
-import android.media.MediaPlayer;
 import android.media.SoundPool;
 import android.os.Bundle;
 import android.os.Handler;
@@ -34,9 +33,9 @@ public class MGDExerciseActivity extends CardboardActivity {
     private static final String TAG = "MGDExerciseActivity";
     private MGDExerciseView view; //unsere view
     static CardboardOverlayView mOverlayView;
-    private MediaPlayer mp;
+    //private MediaPlayer mp;
     private SoundMeter mSensor;
-    private int mThreshold = 10;
+    private int mThreshold = 5;
     private Handler mHandler = new Handler();
     private static final int POLL_INTERVAL = 600; //ist auch die verzögerung bis laser sound erklingt
     private SoundPool soundPool;
@@ -60,9 +59,9 @@ public class MGDExerciseActivity extends CardboardActivity {
         view.setRenderer(view);
         setCardboardView(view);
         mOverlayView = (CardboardOverlayView) findViewById(R.id.overlay);
-        mp = MediaPlayer.create(getApplicationContext(), R.raw.vogelzwitschern);
-        mp.setVolume(0.7f, 0.7f);
-        mp.setLooping(true);
+        //mp = MediaPlayer.create(getApplicationContext(), R.raw.vogelzwitschern);
+        //mp.setVolume(0.7f, 0.7f);
+        //mp.setLooping(true);
         mSensor = new SoundMeter();
         soundPool = new SoundPool(5, AudioManager.STREAM_MUSIC, 0);
         laserSound = soundPool.load(getApplicationContext(), R.raw.laser, 1); // in 2nd param u have to pass your desire ringtone
@@ -80,7 +79,7 @@ public class MGDExerciseActivity extends CardboardActivity {
     protected void onPause() {
         view.onPause(); //erst unsere view pausieren
         super.onPause();
-        mp.release();
+        //mp.release();
         mSensor.stop();
     }
 
@@ -92,7 +91,7 @@ public class MGDExerciseActivity extends CardboardActivity {
         showToast();
         Log.e("onresume", "wurde " + call_counter + " mal aufgerufen");
         if(call_counter == 0){
-            mp.start();
+            //mp.start();
         }else{
             //jetzt läuft zwar hintergrundmusik nicht weiter, aber dafür schmiert die app nicht ab
         }
@@ -107,7 +106,18 @@ public class MGDExerciseActivity extends CardboardActivity {
     }
 
     public static void setToastText(String text){
-        mOverlayView.setText(text);
+        //mOverlayView.setText(text);
+        mOverlayView.show3DToast("noise detected " + text);
+        //setText(text);
+    }
+
+    private void setText(final String text){
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mOverlayView.show3DToast("noise detected " + text);
+            }
+        });
     }
 
     private void callForHelp(double amplitude) {
@@ -130,5 +140,4 @@ public class MGDExerciseActivity extends CardboardActivity {
             mHandler.postDelayed(mPollTask, POLL_INTERVAL);
         }
     };
-
 }

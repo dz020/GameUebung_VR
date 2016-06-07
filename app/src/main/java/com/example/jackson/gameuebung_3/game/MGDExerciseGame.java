@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.res.AssetManager;
 import android.opengl.GLES20;
 
+import com.example.jackson.gameuebung_3.MGDExerciseActivity;
 import com.example.jackson.gameuebung_3.Mesh;
 import com.example.jackson.gameuebung_3.graphics.Camera;
 import com.example.jackson.gameuebung_3.graphics.CompareFunction;
@@ -43,10 +44,15 @@ public class MGDExerciseGame extends Game{
         Matrix4x4 viewMatrix = new Matrix4x4();
 
         /* cube */
+            float rotation = 0;
             boxes = new LinkedList<>();
             float translation = 0;
-            for(int i=0; i<2; i++){
-                boxes.add(new GameObject(translation).getGameObject());
+            for(int i=0; i<8; i++){
+                Matrix4x4 box = new GameObject(translation).getGameObject();
+                Matrix4x4 rotated_box = Matrix4x4.createRotationY(rotation);
+                Matrix4x4 tmp = Matrix4x4.multiply(rotated_box, box);
+                rotation += 45;
+                boxes.add(tmp);
                 translation += 100;
             }
 
@@ -64,6 +70,14 @@ public class MGDExerciseGame extends Game{
 
         // TODO --- TOAST UPDATE GEHT NICHT WEGEN ANDEREM THREAD
         //MGDExerciseActivity.setToastText(Integer.toString( boxes.size() ));
+
+        ((MGDExerciseActivity) context).runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                MGDExerciseActivity.setToastText(Integer.toString(getBubbleAmount()));
+//                mOverlayView.show3DToast("noise detected " + text);
+            }
+        });
     }
 
     @Override
@@ -79,7 +93,7 @@ public class MGDExerciseGame extends Game{
         GLES20.glClearDepthf(1.0f);
         GLES20.glClear(GLES20.GL_DEPTH_BUFFER_BIT);
         /* cube */
-            for(int i=0; i<2; i++){
+            for(int i=0; i<8; i++){
                 boxes.get(i).rotateY(0.2f);
                 graphicsDevice.setWorldMatrix(boxes.get(i));
                 graphicsDevice.unbindTexture();
