@@ -7,7 +7,8 @@ import android.opengl.GLES20;
 import com.example.jackson.gameuebung_3.MGDExerciseActivity;
 import com.example.jackson.gameuebung_3.Mesh;
 import com.example.jackson.gameuebung_3.graphics.Camera;
-import com.example.jackson.gameuebung_3.graphics.CompareFunction;
+import com.example.jackson.gameuebung_3.graphics.Material;
+import com.example.jackson.gameuebung_3.graphics.Renderer;
 import com.example.jackson.gameuebung_3.graphics.Texture;
 import com.example.jackson.gameuebung_3.math.Matrix4x4;
 
@@ -20,89 +21,47 @@ import java.util.LinkedList;
  */
 public class MGDExerciseGame extends Game{
     private static String TAG = "MGDExerciseGame";
-    private Mesh cube;
+    private Mesh modelMesh;
     private Camera camera;
-    private Texture box_texture;
-    private static LinkedList<Matrix4x4> boxes;
+    private static LinkedList<Matrix4x4> gameObjectList = new LinkedList<>();
+    private GameState gameState;
+    private Matrix4x4 viewMatrix;
+    private Texture modelTexture;
+    private Renderer renderer;
+    private Material modelMaterial;
 
     public MGDExerciseGame(Context context) {
         super(context);
     }
 
-
     @Override
     public void initialize() {
-        try{
-            cube = Mesh.loadFromOBJ(context.getAssets().open("box.obj"));
-        }catch(IOException e){
-            e.printStackTrace();
-        }
-        camera = new Camera();
-        Matrix4x4 projectionMatrix = new Matrix4x4();
-        projectionMatrix.setPerspectiveProjection(0.1f, 0.1f, -0.1f, -0.1f, 0.1f, 100.0f); //wird in resize überschrieben
-        camera.setM_projection(projectionMatrix);
-        Matrix4x4 viewMatrix = new Matrix4x4();
-
-        /* cube */
-            float rotation = 0;
-            boxes = new LinkedList<>();
-            float translation = 0;
-            for(int i=0; i<8; i++){
-                Matrix4x4 box = new GameObject(translation).getGameObject();
-                Matrix4x4 rotated_box = Matrix4x4.createRotationY(rotation);
-                Matrix4x4 tmp = Matrix4x4.multiply(rotated_box, box);
-                rotation += 45;
-                boxes.add(tmp);
-                translation += 100;
-            }
-
-        AssetManager assetManager = context.getAssets();
-        try { //TODO problem bei jedem draw  wird die textur neu geladen
-            InputStream inputStream_box = assetManager.open("box.png");
-            box_texture = graphicsDevice.createTexture(inputStream_box);
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        viewMatrix.translate(0.0f, 10.0f, -30.0f);
-        camera.setM_view(viewMatrix);
-
-        // TODO --- TOAST UPDATE GEHT NICHT WEGEN ANDEREM THREAD
-        //MGDExerciseActivity.setToastText(Integer.toString( boxes.size() ));
-
-        ((MGDExerciseActivity) context).runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                MGDExerciseActivity.setToastText(Integer.toString(getBubbleAmount()));
-//                mOverlayView.show3DToast("noise detected " + text);
-            }
-        });
+        gameState = new GameState();
+        gameState.level = 1;
+        createWorld();
+        gameState.setGameObject_amount(8);
+        createScoreAlert(gameState.getGameObject_amount());
+        createGameObjects("box.obj", "box.png", gameState.getGameObject_amount());
+        modelMaterial = new Material();
+        modelMaterial.setTexture(modelTexture);
+        renderer = new Renderer(graphicsDevice);
+        //hier könnte dann gamelevel inkrementiert werden und mit gameobject amount multipliziert werden
     }
 
     @Override
     public void update(float deltaSeconds) {
-        //world_cube = Matrix4x4.multiply(world_cube, Matrix4x4.createRotationY(deltaSeconds * 180.0f)); // Bogenmaß, 1 drehung pro deltaSecond
     }
 
     @Override
     public void draw(float deltaSeconds) {
         graphicsDevice.setCamera(this.camera);
         //graphicsDevice.clear(1.0f, 0.5f, 0.0f, 1.0f, 1.0f); //hintergrund farbe ändern
-
         GLES20.glClearDepthf(1.0f);
         GLES20.glClear(GLES20.GL_DEPTH_BUFFER_BIT);
-        /* cube */
-            for(int i=0; i<8; i++){
-                boxes.get(i).rotateY(0.2f);
-                graphicsDevice.setWorldMatrix(boxes.get(i));
-                graphicsDevice.unbindTexture();
-                graphicsDevice.bindTexture(box_texture);
-                graphicsDevice.bindVertexBuffer(cube.getVertexBuffer());
-                graphicsDevice.setDepthWrite(true);
-                graphicsDevice.setDepthTest(CompareFunction.LESS_OR_EQUAL);
-                graphicsDevice.draw(cube.getMode(), cube.getVertexBuffer().getVertex_amount());
-            }
+        for(int i=0; i<8; i++){
+            gameObjectList.get(i).rotateY(0.2f);
+            renderer.drawMesh(modelMesh, modelMaterial, gameObjectList.get(i));
+        }
     }
 
     @Override
@@ -125,7 +84,61 @@ public class MGDExerciseGame extends Game{
     }
 
     public static int getBubbleAmount(){
-        return boxes.size();
+        return gameObjectList.size();
+    }
+
+    public void createGameObjects(String obj_filename, String texture_filename, int amount){
+        modelMesh = loadMesh(obj_filename);
+        modelTexture = loadTexture(texture_filename);
+        float rotation = 0;
+        float translation = 0;
+        for(int i=0; i<amount; i++){
+            Matrix4x4 box = new GameObject(translation).getGameObject();
+            Matrix4x4 rotated_box = Matrix4x4.createRotationY(rotation);
+            Matrix4x4 tmp = Matrix4x4.multiply(rotated_box, box);
+            rotation += 45;
+            gameObjectList.add(tmp);
+            translation += 100;
+        }
+    }
+
+    public Mesh loadMesh(String filename){
+        try{
+            return Mesh.loadFromOBJ(context.getAssets().open(filename));
+        }catch(IOException e){
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public void createWorld(){
+        camera = new Camera();
+        Matrix4x4 projectionMatrix = new Matrix4x4();
+        projectionMatrix.setPerspectiveProjection(0.1f, 0.1f, -0.1f, -0.1f, 0.1f, 100.0f); //wird in resize überschrieben
+        camera.setM_projection(projectionMatrix);
+        viewMatrix = new Matrix4x4();
+        viewMatrix.translate(0.0f, 10.0f, -30.0f);
+        camera.setM_view(viewMatrix);
+    }
+
+    public Texture loadTexture(String filename){
+        AssetManager assetManager = context.getAssets();
+        try {
+            InputStream inputStream_box = assetManager.open(filename);
+             return graphicsDevice.createTexture(inputStream_box);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public void createScoreAlert(final int amount){
+        ((MGDExerciseActivity) context).runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                MGDExerciseActivity.setToastText(Integer.toString((amount)));
+            }
+        });
     }
 
 }
