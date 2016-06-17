@@ -29,6 +29,10 @@ public class MGDExerciseGame extends Game{
     private Texture modelTexture;
     private Renderer renderer;
     private Material modelMaterial;
+    private Matrix4x4 sphereMatrix;
+    private Mesh sphereMesh;
+    private Texture sphereTexture;
+    private Material sphereMaterial;
 
     public MGDExerciseGame(Context context) {
         super(context);
@@ -44,6 +48,15 @@ public class MGDExerciseGame extends Game{
         createGameObjects("box.obj", "box.png", gameState.getGameObject_amount());
         modelMaterial = new Material();
         modelMaterial.setTexture(modelTexture);
+
+
+        sphereMesh = loadMesh("box.obj");
+        sphereTexture = loadTexture("bubble.png");
+        sphereMatrix = new GameObject(0).getGameObject();
+        sphereMatrix.scale(3);
+        sphereMaterial = new Material();
+        sphereMaterial.setTexture(sphereTexture);
+
         renderer = new Renderer(graphicsDevice);
         //hier könnte dann gamelevel inkrementiert werden und mit gameobject amount multipliziert werden
     }
@@ -55,13 +68,14 @@ public class MGDExerciseGame extends Game{
     @Override
     public void draw(float deltaSeconds) {
         graphicsDevice.setCamera(this.camera);
-        //graphicsDevice.clear(1.0f, 0.5f, 0.0f, 1.0f, 1.0f); //hintergrund farbe ändern
+        graphicsDevice.clear(1.0f, 0.5f, 0.0f, 1.0f, 1.0f); //hintergrund farbe ändern
         GLES20.glClearDepthf(1.0f);
         GLES20.glClear(GLES20.GL_DEPTH_BUFFER_BIT);
         for(int i=0; i<8; i++){
             gameObjectList.get(i).rotateY(0.2f);
             renderer.drawMesh(modelMesh, modelMaterial, gameObjectList.get(i));
         }
+        renderer.drawMesh(sphereMesh, sphereMaterial, sphereMatrix);
     }
 
     @Override

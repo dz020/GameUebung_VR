@@ -1,7 +1,6 @@
 package com.example.jackson.gameuebung_3.game;
 
 import android.content.Context;
-import android.util.Log;
 
 import com.example.jackson.gameuebung_3.graphics.GraphicsDevice;
 
@@ -46,7 +45,7 @@ public abstract class Game implements android.opengl.GLSurfaceView.Renderer {
     public void onDrawFrame(GL10 gl) {
         Long currentTime = System.currentTimeMillis();
         Long deltaTime = currentTime - lastTime;
-        Log.i("deltaTime", deltaTime.toString()); //zeit die nötig war um einen frame zu erzeugen
+        //Log.i("deltaTime", deltaTime.toString()); //zeit die nötig war um einen frame zu erzeugen
         update(deltaTime / 1000.0f);
         draw(deltaTime / 1000.0f);
         lastTime = currentTime;

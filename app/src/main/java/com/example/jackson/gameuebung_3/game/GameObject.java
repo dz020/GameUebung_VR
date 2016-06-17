@@ -5,7 +5,7 @@ import com.example.jackson.gameuebung_3.math.Matrix4x4;
 /**
  * Created by Jackson on 31.05.2016.
  */
-public class GameObject {
+public class GameObject /*implements Shape2D*/{
 
     private Matrix4x4 bubbleObject;
 

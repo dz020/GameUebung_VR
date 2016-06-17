@@ -87,13 +87,18 @@ public class MGDExerciseView extends CardboardView implements CardboardView.Ster
         int[] texture = new int[1];
 
         GLES20.glGenTextures(1,texture, 0);
+
         GLES20.glBindTexture(GL_TEXTURE_EXTERNAL_OES, texture[0]);
+
         GLES20.glTexParameterf(GL_TEXTURE_EXTERNAL_OES,
                 GL10.GL_TEXTURE_MIN_FILTER,GL10.GL_LINEAR);
+
         GLES20.glTexParameterf(GL_TEXTURE_EXTERNAL_OES,
                 GL10.GL_TEXTURE_MAG_FILTER, GL10.GL_LINEAR);
+
         GLES20.glTexParameteri(GL_TEXTURE_EXTERNAL_OES,
                 GL10.GL_TEXTURE_WRAP_S, GL10.GL_CLAMP_TO_EDGE);
+
         GLES20.glTexParameteri(GL_TEXTURE_EXTERNAL_OES,
                 GL10.GL_TEXTURE_WRAP_T, GL10.GL_CLAMP_TO_EDGE);
 
@@ -139,7 +144,6 @@ public class MGDExerciseView extends CardboardView implements CardboardView.Ster
         GLES20.glVertexAttribPointer(mPositionHandle, COORDS_PER_VERTEX, GLES20.GL_FLOAT,
                 false, vertexStride, vertexBuffer);
 
-
         int mTextureCoordHandle = GLES20.glGetAttribLocation(mProgram, "inputTextureCoordinate");
         GLES20.glEnableVertexAttribArray(mTextureCoordHandle);
         GLES20.glVertexAttribPointer(mTextureCoordHandle, COORDS_PER_VERTEX, GLES20.GL_FLOAT,
@@ -147,10 +151,8 @@ public class MGDExerciseView extends CardboardView implements CardboardView.Ster
 
         int mColorHandle = GLES20.glGetAttribLocation(mProgram, "s_texture");
 
-
         /* zeichnet die kamera in den hintergrund */
         GLES20.glDrawElements(GLES20.GL_TRIANGLES, drawOrder.length, GLES20.GL_UNSIGNED_SHORT, drawListBuffer);
-
 
         // Disable vertex array
         GLES20.glDisableVertexAttribArray(mPositionHandle);
@@ -174,7 +176,7 @@ public class MGDExerciseView extends CardboardView implements CardboardView.Ster
 
     @Override
     public void onSurfaceCreated(EGLConfig eglConfig) {
-        Log.i(TAG, "onSurfaceCreated");
+        //Log.i(TAG, "onSurfaceCreated");
         //GLES20.glClearColor(0.1f, 0.1f, 0.1f, 0.5f); // Dark background so text shows up well
 
         ByteBuffer bb = ByteBuffer.allocateDirect(squareVertices.length * 4);

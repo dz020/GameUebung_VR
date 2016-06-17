@@ -51,10 +51,10 @@ public class SoundMeter {
     }
 
     public double getAmplitude() {
-        Log.e("soundmeter","ist in getAmplitude()");
+        //Log.e("soundmeter","ist in getAmplitude()");
         if (mRecorder != null){
             double a = mRecorder.getMaxAmplitude()/2700.0;
-            Log.e("soundmeter", "amplitude gerade: "+a);
+            //Log.e("soundmeter", "amplitude gerade: "+a);
             return a;
         } else {
             return 0;

@@ -89,7 +89,6 @@ public class MGDExerciseActivity extends CardboardActivity {
         super.onResume(); //erst die activity starten
         view.onResume();
         showToast();
-        Log.e("onresume", "wurde " + call_counter + " mal aufgerufen");
         if(call_counter == 0){
             //mp.start();
         }else{
@@ -132,7 +131,7 @@ public class MGDExerciseActivity extends CardboardActivity {
     final Runnable mPollTask = new Runnable() {
         public void run() {
             double amp = mSensor.getAmplitude();
-            Log.e("Noise", "runnable mPollTask " + amp);
+            //Log.e("Noise", "runnable mPollTask " + amp);
             if ((amp > mThreshold)) {
                 callForHelp(amp);
             }
