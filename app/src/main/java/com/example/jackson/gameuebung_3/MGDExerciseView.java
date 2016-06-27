@@ -230,7 +230,6 @@ public class MGDExerciseView extends CardboardView implements CardboardView.Ster
         startCamera(texture);
 
         mgdExerciseGame.onSurfaceCreated(null, eglConfig);
-        mgdExerciseGame.initialize();
     }
 
     @Override

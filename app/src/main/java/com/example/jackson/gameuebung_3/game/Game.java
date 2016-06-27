@@ -12,11 +12,19 @@ import javax.microedition.khronos.opengles.GL10;
  */
 public abstract class Game implements android.opengl.GLSurfaceView.Renderer {
 
-    protected GraphicsDevice graphicsDevice;
+    protected static GraphicsDevice graphicsDevice;
     private  long lastTime = 0;
-    protected Context context;
-    protected int screenWidth;
-    protected int screenHeight;
+    protected static Context context;
+    public int screenWidth;
+    public int screenHeight;
+
+    public int getScreenWidth() {
+        return screenWidth;
+    }
+
+    public int getScreenHeight() {
+        return screenHeight;
+    }
 
     /* Konstruktor */
     public Game(Context context){

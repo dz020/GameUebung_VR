@@ -22,7 +22,7 @@ public class AABB implements Shape2D {
 		this.min = new Vector2(position.v[0] - 0.5f * width, position.v[1] - 0.5f * height);
 		this.max = new Vector2(position.v[0] + 0.5f * width, position.v[1] + 0.5f * height);
 	}
-	
+
 	public AABB(float x, float y, float width, float height) {
 		this.min = new Vector2(x, y);
 		this.max = new Vector2(x + width, y + height);

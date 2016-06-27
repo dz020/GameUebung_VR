@@ -38,11 +38,26 @@ public class MGDExerciseActivity extends CardboardActivity {
     private int mThreshold = 5;
     private Handler mHandler = new Handler();
     private static final int POLL_INTERVAL = 600; //ist auch die verzögerung bis laser sound erklingt
-    private SoundPool soundPool;
+    private static SoundPool soundPool;
     private int laserSound;
+    private static int beepSound;
+    private static int finalBeepSound;
 
+
+    public static SoundPool getSoundPool() {
+        return soundPool;
+    }
+
+    public static int getBeepSound() {
+        return beepSound;
+    }
+
+    public static int getFinalBeepSound() {
+        return finalBeepSound;
+    }
 
     /**
+
      * Sets the view to our CardboardView and initializes the transformation matrices we will use
      * to render our scene.
      * @param savedInstanceState
@@ -65,6 +80,8 @@ public class MGDExerciseActivity extends CardboardActivity {
         mSensor = new SoundMeter();
         soundPool = new SoundPool(5, AudioManager.STREAM_MUSIC, 0);
         laserSound = soundPool.load(getApplicationContext(), R.raw.laser, 1); // in 2nd param u have to pass your desire ringtone
+        beepSound = soundPool.load(getApplicationContext(), R.raw.beep, 2);
+        finalBeepSound = soundPool.load(getApplicationContext(), R.raw.final_beep, 3);
     }
 
     /**
@@ -81,6 +98,7 @@ public class MGDExerciseActivity extends CardboardActivity {
         super.onPause();
         //mp.release();
         mSensor.stop();
+        soundPool.autoPause();
     }
 
     int call_counter = 0;
