@@ -2,11 +2,13 @@ package com.example.jackson.gameuebung_3.game;
 
 import android.content.Context;
 import android.opengl.GLES20;
+import android.util.Log;
 
+import com.example.jackson.gameuebung_3.collision.AABB;
 import com.example.jackson.gameuebung_3.graphics.Camera;
-import com.example.jackson.gameuebung_3.graphics.Material;
 import com.example.jackson.gameuebung_3.graphics.Renderer;
 import com.example.jackson.gameuebung_3.math.Matrix4x4;
+import com.example.jackson.gameuebung_3.math.Vector2;
 
 import java.util.LinkedList;
 
@@ -17,11 +19,12 @@ public class MGDExerciseGame extends Game{
     public static String TAG = "MGDExerciseGame";
 
     private Camera camera;
-    public static LinkedList<Matrix4x4> gameObjectList = new LinkedList<>();
+    public static LinkedList<GameObject> gameObjectList = new LinkedList<>();
     private GameState gameState;
     private Renderer renderer;
-    private static Material modelMaterial;
     public static Context context;
+    public AABB shape;
+    public Vector2 shape_position_in_world;
 
     public MGDExerciseGame(Context context) {
         super(context);
@@ -35,10 +38,13 @@ public class MGDExerciseGame extends Game{
         createWorld();
 
         gameState.setGameObject_amount(1);
-        UtilityMethods.createGameObject("box.obj", "box.png");
+        gameObjectList.add(new GameObject("box.obj", "box.png"));
+        UtilityMethods.countDown();
 
-        modelMaterial = new Material();
-        modelMaterial.setTexture(UtilityMethods.modelTexture);
+        shape = new AABB();
+        shape_position_in_world = shape.getPosition();
+
+
 
         renderer = new Renderer(graphicsDevice);
         //hier könnte dann gamelevel inkrementiert werden und mit gameobject amount multipliziert werden
@@ -59,16 +65,28 @@ public class MGDExerciseGame extends Game{
                 Log.e(TAG, "COLLISION DETECTED !!!!!!!!!!!!!!!!!!!!!!!!!");
             }
         }*/
+        Matrix4x4.createTranslation(shape_position_in_world.getX(), shape_position_in_world.getY(), -8f);
+        //Log.e(TAG, "position von shape X: " + shape_position_in_world.getX() + " Y: " + shape_position_in_world.getY());
+        //Log.e(TAG, "position von gameObject X: "+gameObjectList.get(UtilityMethods.gameObjectItertor).getShape().getPosition().getX()+" Y: "+gameObjectList.get(UtilityMethods.gameObjectItertor).getShape().getPosition().getY());
+        if(shape.intersects(gameObjectList.get(UtilityMethods.gameObjectItertor).getShape())){
+            Log.e(TAG, "collsion detected !!!!!");
+        }
     }
 
+    int i = 0;
     @Override
     public void draw(float deltaSeconds) {
         graphicsDevice.setCamera(this.camera);
         //graphicsDevice.clear(1.0f, 0.5f, 0.0f, 1.0f, 1.0f); //hintergrund farbe ändern
         GLES20.glClearDepthf(1.0f);
         GLES20.glClear(GLES20.GL_DEPTH_BUFFER_BIT);
-        gameObjectList.get(UtilityMethods.gameObjectItertor).rotateY(1f);
-        renderer.drawMesh(UtilityMethods.modelMesh, modelMaterial, gameObjectList.get(UtilityMethods.gameObjectItertor));
+        gameObjectList.get(UtilityMethods.gameObjectItertor).getGameObjectPositionInWorldMatrix().rotateY(1f);
+
+        renderer.drawMesh(gameObjectList.get(UtilityMethods.gameObjectItertor).getModelMesh(),
+                          gameObjectList.get(UtilityMethods.gameObjectItertor).getModelMaterial(),
+                          gameObjectList.get(UtilityMethods.gameObjectItertor).getGameObjectPositionInWorldMatrix());
+        //Log.e(TAG, "draw aufruf: " + i);
+        i++;
         //Log.e("tag", "screen width, height: " +Integer.toString(getScreenWidth())+" , "+Integer.toString(getScreenHeight()) );
     }
 

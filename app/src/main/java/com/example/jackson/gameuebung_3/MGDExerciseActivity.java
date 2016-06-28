@@ -16,7 +16,8 @@
 
 package com.example.jackson.gameuebung_3;
 
-import android.media.AudioManager;
+import android.media.AudioAttributes;
+import android.media.MediaPlayer;
 import android.media.SoundPool;
 import android.os.Bundle;
 import android.os.Handler;
@@ -33,7 +34,7 @@ public class MGDExerciseActivity extends CardboardActivity {
     private static final String TAG = "MGDExerciseActivity";
     private MGDExerciseView view; //unsere view
     static CardboardOverlayView mOverlayView;
-    //private MediaPlayer mp;
+    private MediaPlayer mp;
     private SoundMeter mSensor;
     private int mThreshold = 5;
     private Handler mHandler = new Handler();
@@ -64,6 +65,7 @@ public class MGDExerciseActivity extends CardboardActivity {
      */
     @Override
     public void onCreate(Bundle savedInstanceState) {
+        Log.e("oncreate", "begin");
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
@@ -74,14 +76,20 @@ public class MGDExerciseActivity extends CardboardActivity {
         view.setRenderer(view);
         setCardboardView(view);
         mOverlayView = (CardboardOverlayView) findViewById(R.id.overlay);
-        //mp = MediaPlayer.create(getApplicationContext(), R.raw.vogelzwitschern);
-        //mp.setVolume(0.7f, 0.7f);
-        //mp.setLooping(true);
+        mp = MediaPlayer.create(getApplicationContext(), R.raw.vogelzwitschern);
+        mp.setVolume(0.7f, 0.7f);
+        mp.setLooping(true);
         mSensor = new SoundMeter();
-        soundPool = new SoundPool(5, AudioManager.STREAM_MUSIC, 0);
+        AudioAttributes attributes = new AudioAttributes.Builder()
+                .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+                .setFlags(AudioAttributes.FLAG_AUDIBILITY_ENFORCED)
+                .setUsage(AudioAttributes.USAGE_GAME)
+                .build();
+        soundPool = new SoundPool.Builder().setAudioAttributes(attributes).setMaxStreams(3).build();
         laserSound = soundPool.load(getApplicationContext(), R.raw.laser, 1); // in 2nd param u have to pass your desire ringtone
         beepSound = soundPool.load(getApplicationContext(), R.raw.beep, 2);
-        finalBeepSound = soundPool.load(getApplicationContext(), R.raw.final_beep, 3);
+        finalBeepSound = soundPool.load(getApplicationContext(), R.raw.final_beep, 2);
+        Log.e("oncreate", "end");
     }
 
     /**
@@ -94,21 +102,24 @@ public class MGDExerciseActivity extends CardboardActivity {
 
     @Override
     protected void onPause() {
+        Log.e("onpause", "begin");
         view.onPause(); //erst unsere view pausieren
         super.onPause();
-        //mp.release();
+        mp.release();
         mSensor.stop();
-        soundPool.autoPause();
+        soundPool.release();
+        Log.e("onpause", "end");
     }
 
     int call_counter = 0;
     @Override
     protected void onResume() {
         super.onResume(); //erst die activity starten
+        Log.e("onresume", "begin");
         view.onResume();
         showToast();
         if(call_counter == 0){
-            //mp.start();
+            mp.start();
         }else{
             //jetzt läuft zwar hintergrundmusik nicht weiter, aber dafür schmiert die app nicht ab
         }
@@ -116,6 +127,7 @@ public class MGDExerciseActivity extends CardboardActivity {
         mSensor.start();
         Thread mythread = new Thread(mPollTask);
         mythread.start();
+        Log.e("onresume", "end");
     }
 
     public static void showToast(){

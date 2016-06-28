@@ -17,9 +17,6 @@ import java.io.InputStream;
  */
 public class UtilityMethods {
 
-    public static Mesh modelMesh;
-    public static Texture modelTexture;
-
     public static Mesh loadMesh(String filename){
         try{
             return Mesh.loadFromOBJ(MGDExerciseGame.context.getAssets().open(filename));
@@ -61,7 +58,7 @@ public class UtilityMethods {
                         int finalBeepSound = MGDExerciseActivity.getFinalBeepSound();
                         MGDExerciseActivity.getSoundPool().play(finalBeepSound, 0.05f, 0.05f, 0, 0, 1);
                         Log.e("TAG", "countdown abgelaufen");
-                        createGameObject("box.obj", "box.png");
+                        repositionGameObject(new GameObject("box.obj", "box.png"));
                         //createGameObject("box.obj", "box.png");
 //                        renderer.drawMesh(modelMesh, modelMaterial, gameObjectList.get(1));
                         // draw(0);
@@ -71,22 +68,20 @@ public class UtilityMethods {
         });
     }
 
-    public static float rotation = 0;
+    public static float rotation = 45;
     public static int gameObjectItertor = 0;
-    public static void createGameObject(String obj_filename, String texture_filename){
-        modelMesh = UtilityMethods.loadMesh(obj_filename);
-        modelTexture = UtilityMethods.loadTexture(texture_filename);
-        GameObject gameObject = new GameObject();
-        Matrix4x4 box = gameObject.getGameObject();
+
+    public static void repositionGameObject(GameObject gameObject){
+        Matrix4x4 box = gameObject.getGameObjectPositionInWorldMatrix();
         Matrix4x4 rotated_box = Matrix4x4.createRotationY(rotation);
         Log.e(MGDExerciseGame.TAG, "game object erzeugt mit rotation winkel: " + rotation);
         Matrix4x4 tmp = Matrix4x4.multiply(rotated_box, box);
-        if(rotation >= 315){
-            rotation = 0;
+        if(rotation == 360){
+            rotation = 45;
         }else{
             rotation += 45;
         }
-        MGDExerciseGame.gameObjectList.add(gameObjectItertor, tmp);
+        MGDExerciseGame.gameObjectList.get(gameObjectItertor).setPosition_in_world(tmp);
         UtilityMethods.countDown();
     }
 

@@ -86,7 +86,7 @@ public class MGDExerciseView extends CardboardView implements CardboardView.Ster
     static private int createTexture() {
         int[] texture = new int[1];
 
-        GLES20.glGenTextures(1,texture, 0);
+        GLES20.glGenTextures(1, texture, 0);
 
         GLES20.glBindTexture(GL_TEXTURE_EXTERNAL_OES, texture[0]);
 
@@ -114,9 +114,12 @@ public class MGDExerciseView extends CardboardView implements CardboardView.Ster
         this.setZPlanes(1.0f, 1000.0f);
     }
 
+    int i = 0;
     @Override
     public void onFrameAvailable(SurfaceTexture surfaceTexture) {
         this.requestRender();
+        //Log.e(TAG, "on frame availabe: "+i);
+        i++;
     }
 
     @Override
@@ -135,7 +138,9 @@ public class MGDExerciseView extends CardboardView implements CardboardView.Ster
 
         GLES20.glUseProgram(mProgram);
 
-        GLES20.glActiveTexture(GL_TEXTURE_EXTERNAL_OES);
+//        GLES20.glActiveTexture(GL_TEXTURE_EXTERNAL_OES); hier könnte eventuell GL_TEXTURE0 stehen
+//        GLES20.glBindTexture(GL_TEXTURE_EXTERNAL_OES, texture);
+        GLES20.glActiveTexture(GLES20.GL_ACTIVE_TEXTURE);
         GLES20.glBindTexture(GL_TEXTURE_EXTERNAL_OES, texture);
 
         int mPositionHandle = GLES20.glGetAttribLocation(mProgram, "position");
@@ -166,7 +171,6 @@ public class MGDExerciseView extends CardboardView implements CardboardView.Ster
 
     @Override
     public void onFinishFrame(Viewport viewport) {
-
     }
 
     @Override

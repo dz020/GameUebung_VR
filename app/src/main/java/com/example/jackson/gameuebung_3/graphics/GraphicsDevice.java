@@ -228,7 +228,7 @@ public class GraphicsDevice {
     }
 
     public void bindTexture(Texture texture) {
-        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, texture.getHandle());
+        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, texture.getHandle()); //texture.getHandle ist immer 2
         GLES20.glEnable(GLES20.GL_TEXTURE_2D);
     }
 

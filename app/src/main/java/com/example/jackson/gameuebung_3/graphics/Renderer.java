@@ -25,6 +25,7 @@ public class Renderer {
         graphicsDevice.bindVertexBuffer(vertexBuffer);
         graphicsDevice.draw(mesh.getMode(), vertexBuffer.getVertex_amount());
         graphicsDevice.unbindVertexBuffer(vertexBuffer);
+        graphicsDevice.unbindTexture();
     }
 
     public GraphicsDevice getGraphicsDevice() {
