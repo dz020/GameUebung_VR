@@ -22,6 +22,7 @@ public class GameObject{
     public Texture modelTexture;
     public Material modelMaterial;
     public Shape3D shape;
+    public boolean destroyed = false;
 
     public GameObject(String mesh_filname, String texture_filename){
         if(true){
@@ -75,5 +76,12 @@ public class GameObject{
 
     public Vector3 getMittelpunkt(){
         return new Vector3(position_in_world.m[12], position_in_world.m[13], position_in_world.m[14]);
+    }
+
+    public void setDestroyed(){
+        destroyed = true;
+        modelTexture = UtilityMethods.loadTexture("red_shape.png");
+        modelMaterial = new Material();
+        modelMaterial.setTexture(modelTexture);
     }
 }

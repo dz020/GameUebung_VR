@@ -86,6 +86,9 @@ public class MGDExerciseGame extends Game{
         if(fadenkreuz.getShape().intersects(gameObjectList.get(UtilityMethods.gameObjectItertor).getShape())){
             Log.e(TAG, "collsion detected !!!!!");
             MGDExerciseActivity.setCollision(true);
+            if(MGDExerciseActivity.noise_deteced == true){
+                gameObjectList.get(UtilityMethods.gameObjectItertor).setDestroyed();
+            }
         }else{
             MGDExerciseActivity.setCollision(false);
         }
