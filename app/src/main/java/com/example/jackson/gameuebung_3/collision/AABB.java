@@ -102,5 +102,5 @@ public class AABB implements Shape2D {
 		this.max.v[0] = position.v[0] + 0.5f * size.v[0];
 		this.max.v[1] = position.v[1] + 0.5f * size.v[1];
 	}
-	
+
 }

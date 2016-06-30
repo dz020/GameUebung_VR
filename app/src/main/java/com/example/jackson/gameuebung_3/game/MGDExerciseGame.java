@@ -4,11 +4,11 @@ import android.content.Context;
 import android.opengl.GLES20;
 import android.util.Log;
 
-import com.example.jackson.gameuebung_3.collision.AABB;
+import com.example.jackson.gameuebung_3.MGDExerciseActivity;
 import com.example.jackson.gameuebung_3.graphics.Camera;
 import com.example.jackson.gameuebung_3.graphics.Renderer;
 import com.example.jackson.gameuebung_3.math.Matrix4x4;
-import com.example.jackson.gameuebung_3.math.Vector2;
+import com.example.jackson.gameuebung_3.math.Vector3;
 
 import java.util.LinkedList;
 
@@ -23,13 +23,15 @@ public class MGDExerciseGame extends Game{
     private GameState gameState;
     private Renderer renderer;
     public static Context context;
-    public AABB shape;
-    public Vector2 shape_position_in_world;
+    private Vector3 forwardVector = new Vector3();
+    private Matrix4x4 headView;
 
     public MGDExerciseGame(Context context) {
         super(context);
         this.context = context;
     }
+
+    GameObject fadenkreuz;
 
     @Override
     public void initialize() {
@@ -41,8 +43,9 @@ public class MGDExerciseGame extends Game{
         gameObjectList.add(new GameObject("box.obj", "box.png"));
         UtilityMethods.countDown();
 
-        shape = new AABB();
-        shape_position_in_world = shape.getPosition();
+
+        fadenkreuz = new GameObject("quad.obj", "fadenkreuz.png");
+
 
 
 
@@ -50,6 +53,9 @@ public class MGDExerciseGame extends Game{
         //hier könnte dann gamelevel inkrementiert werden und mit gameobject amount multipliziert werden
     }
 
+    public void setForwardVector(Vector3 forwardVector) {
+        this.forwardVector = forwardVector;
+    }
 
     @Override
     public void update(float deltaSeconds) {
@@ -65,11 +71,23 @@ public class MGDExerciseGame extends Game{
                 Log.e(TAG, "COLLISION DETECTED !!!!!!!!!!!!!!!!!!!!!!!!!");
             }
         }*/
-        Matrix4x4.createTranslation(shape_position_in_world.getX(), shape_position_in_world.getY(), -8f);
+        //Matrix4x4.createTranslation(shape_position_in_world.getX(), shape_position_in_world.getY(), -8f);
         //Log.e(TAG, "position von shape X: " + shape_position_in_world.getX() + " Y: " + shape_position_in_world.getY());
         //Log.e(TAG, "position von gameObject X: "+gameObjectList.get(UtilityMethods.gameObjectItertor).getShape().getPosition().getX()+" Y: "+gameObjectList.get(UtilityMethods.gameObjectItertor).getShape().getPosition().getY());
-        if(shape.intersects(gameObjectList.get(UtilityMethods.gameObjectItertor).getShape())){
+
+        /*
+        Log.e(TAG, "forward vector: x: " + forwardVector.getX() + " y: " + forwardVector.getY() + " z: " + forwardVector.getZ());
+        Vector3 fadenkreuzPos = Vector3.multiply(-8, forwardVector);
+        fadenkreuz.setPosition_in_world(Matrix4x4.createTranslation(fadenkreuzPos.getX(), fadenkreuzPos.getY(), fadenkreuzPos.getZ()));
+        */
+        Matrix4x4 fadenkreuzWorldMatrix = Matrix4x4.multiply(headView.getInverse(), Matrix4x4.createTranslation(0, 0, -8));
+        fadenkreuz.setPosition_in_world(fadenkreuzWorldMatrix);
+
+        if(fadenkreuz.getShape().intersects(gameObjectList.get(UtilityMethods.gameObjectItertor).getShape())){
             Log.e(TAG, "collsion detected !!!!!");
+            MGDExerciseActivity.setCollision(true);
+        }else{
+            MGDExerciseActivity.setCollision(false);
         }
     }
 
@@ -83,8 +101,12 @@ public class MGDExerciseGame extends Game{
         gameObjectList.get(UtilityMethods.gameObjectItertor).getGameObjectPositionInWorldMatrix().rotateY(1f);
 
         renderer.drawMesh(gameObjectList.get(UtilityMethods.gameObjectItertor).getModelMesh(),
-                          gameObjectList.get(UtilityMethods.gameObjectItertor).getModelMaterial(),
-                          gameObjectList.get(UtilityMethods.gameObjectItertor).getGameObjectPositionInWorldMatrix());
+                gameObjectList.get(UtilityMethods.gameObjectItertor).getModelMaterial(),
+                gameObjectList.get(UtilityMethods.gameObjectItertor).getGameObjectPositionInWorldMatrix());
+
+        renderer.drawMesh(fadenkreuz.getModelMesh(),
+                          fadenkreuz.getModelMaterial(),
+                          fadenkreuz.getGameObjectPositionInWorldMatrix());
         //Log.e(TAG, "draw aufruf: " + i);
         i++;
         //Log.e("tag", "screen width, height: " +Integer.toString(getScreenWidth())+" , "+Integer.toString(getScreenHeight()) );
@@ -119,4 +141,10 @@ public class MGDExerciseGame extends Game{
         camera.setM_view(viewMatrix);
     }
 
+    public void setHeadView(Matrix4x4 headView) {
+        this.headView = headView;
+        forwardVector.setX(headView.m[2]);
+        forwardVector.setY(headView.m[6]);
+        forwardVector.setZ(headView.m[10]);
+    }
 }

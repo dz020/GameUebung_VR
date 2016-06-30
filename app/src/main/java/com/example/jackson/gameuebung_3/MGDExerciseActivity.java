@@ -16,7 +16,6 @@
 
 package com.example.jackson.gameuebung_3;
 
-import android.media.AudioAttributes;
 import android.media.MediaPlayer;
 import android.media.SoundPool;
 import android.os.Bundle;
@@ -40,9 +39,10 @@ public class MGDExerciseActivity extends CardboardActivity {
     private Handler mHandler = new Handler();
     private static final int POLL_INTERVAL = 600; //ist auch die verzögerung bis laser sound erklingt
     private static SoundPool soundPool;
-    private int laserSound;
+    private static int laserSound;
     private static int beepSound;
     private static int finalBeepSound;
+    private static int coinSound;
 
 
     public static SoundPool getSoundPool() {
@@ -56,7 +56,6 @@ public class MGDExerciseActivity extends CardboardActivity {
     public static int getFinalBeepSound() {
         return finalBeepSound;
     }
-
     /**
 
      * Sets the view to our CardboardView and initializes the transformation matrices we will use
@@ -80,15 +79,12 @@ public class MGDExerciseActivity extends CardboardActivity {
         mp.setVolume(0.7f, 0.7f);
         mp.setLooping(true);
         mSensor = new SoundMeter();
-        AudioAttributes attributes = new AudioAttributes.Builder()
-                .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
-                .setFlags(AudioAttributes.FLAG_AUDIBILITY_ENFORCED)
-                .setUsage(AudioAttributes.USAGE_GAME)
-                .build();
-        soundPool = new SoundPool.Builder().setAudioAttributes(attributes).setMaxStreams(3).build();
-        laserSound = soundPool.load(getApplicationContext(), R.raw.laser, 1); // in 2nd param u have to pass your desire ringtone
-        beepSound = soundPool.load(getApplicationContext(), R.raw.beep, 2);
+
+        soundPool = new SoundPool.Builder().setMaxStreams(4).build();
+        laserSound = soundPool.load(getApplicationContext(), R.raw.laser, 3); // in 2nd param u have to pass your desire ringtone
+        beepSound = soundPool.load(getApplicationContext(), R.raw.beep, 1);
         finalBeepSound = soundPool.load(getApplicationContext(), R.raw.final_beep, 2);
+        coinSound = soundPool.load(getApplicationContext(), R.raw.coin, 4);
         Log.e("oncreate", "end");
     }
 
@@ -149,12 +145,19 @@ public class MGDExerciseActivity extends CardboardActivity {
         });
     }
 
-    private void callForHelp(double amplitude) {
-        Log.e("activity", "callForHelp"+ amplitude);
+    public static boolean noise_deteced;
+    public void callForHelp(double amplitude) {
+        Log.e("activity", "callForHelp "+ amplitude);
         // Show alert when noise thersold crossed
         //Toast.makeText(getApplicationContext(), "Noise Thersold Crossed, do here your stuff.", Toast.LENGTH_LONG).show();
         mOverlayView.show3DToast("noise detected " + amplitude);
-        soundPool.play(laserSound, 0.05f, 0.05f, 0, 0, 1);
+        soundPool.play(laserSound, 0.05f, 0.05f, 2, 0, 1);
+    }
+
+    public static void setCollision(boolean active){
+        if(active == true && noise_deteced == true){
+            soundPool.play(coinSound, 0.05f, 0.05f, 1, 0, 1);
+        }
     }
 
     // Create runnable thread to Monitor Voice
@@ -164,6 +167,10 @@ public class MGDExerciseActivity extends CardboardActivity {
             //Log.e("Noise", "runnable mPollTask " + amp);
             if ((amp > mThreshold)) {
                 callForHelp(amp);
+                noise_deteced = true;
+            }
+            else{
+                noise_deteced = false;
             }
             // Runnable(mPollTask) will again execute after POLL_INTERVAL
             mHandler.postDelayed(mPollTask, POLL_INTERVAL);

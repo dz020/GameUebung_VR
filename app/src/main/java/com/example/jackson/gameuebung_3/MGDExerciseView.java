@@ -9,6 +9,8 @@ import android.util.AttributeSet;
 import android.util.Log;
 
 import com.example.jackson.gameuebung_3.game.MGDExerciseGame;
+import com.example.jackson.gameuebung_3.math.Matrix4x4;
+import com.example.jackson.gameuebung_3.math.Vector3;
 import com.google.vrtoolkit.cardboard.CardboardView;
 import com.google.vrtoolkit.cardboard.EyeTransform;
 import com.google.vrtoolkit.cardboard.HeadTransform;
@@ -128,8 +130,14 @@ public class MGDExerciseView extends CardboardView implements CardboardView.Ster
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
         surface.updateTexImage();
         surface.getTransformMatrix(mtx);
+        headTransform.getHeadView(headView.m, 0);
+        mgdExerciseGame.setHeadView(headView);
         mgdExerciseGame.update(0);
+
     }
+
+    private Matrix4x4 headView = new Matrix4x4();
+    private Vector3 forwardVector = new Vector3();
 
     @Override
     public void onDrawEye(EyeTransform eyeTransform) {
