@@ -10,7 +10,9 @@ import com.example.jackson.gameuebung_3.graphics.Renderer;
 import com.example.jackson.gameuebung_3.math.Matrix4x4;
 import com.example.jackson.gameuebung_3.math.Vector3;
 
+import java.io.IOException;
 import java.util.LinkedList;
+import java.util.List;
 
 /**
  * Created by Jackson on 29.03.2016.
@@ -32,6 +34,9 @@ public class MGDExerciseGame extends Game{
     }
 
     GameObject fadenkreuz;
+    GameObject menu_bg;
+    GameObject menu_btn;
+    Matrix4x4 fadenkreuzMatrix;
 
     @Override
     public void initialize() {
@@ -39,15 +44,32 @@ public class MGDExerciseGame extends Game{
         gameState.level = 1;
         createWorld();
 
+        try {
+            List<List<String>> list = UtilityMethods.getListFromCSV("gameobject_list.csv");
+            for(int i = 0; i< list.size(); i++){
+                Log.e("aus schleife: ", list.get(i).get(1)); //size
+                Log.e("aus schleife: ", list.get(i).get(2)); //orbit
+                Log.e("aus schleife: ", list.get(i).get(4)); //slot in degree
+                Log.e("aus schleife: ", list.get(i).get(6)); //totalpoints
+                Log.e("aus schleife: ", list.get(i).get(7)); //currently active
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
         gameState.setGameObject_amount(1);
         gameObjectList.add(new GameObject("box.obj", "box.png"));
         UtilityMethods.countDown();
 
-
         fadenkreuz = new GameObject("quad.obj", "fadenkreuz.png");
 
+        menu_bg = new GameObject("quad.obj", "menu.png");
+        menu_btn = new GameObject("quad.obj", "highscore.png");
 
-
+        Matrix4x4 tmp = Matrix4x4.createTranslation(-0.5f, 0.5f, -8f);
+        Matrix4x4 test = new Matrix4x4(tmp);
+        menu_bg.setPosition_in_world(tmp.scale(6,10,1));
+        menu_btn.setPosition_in_world(test.scale(1.3f, 0.7f, 1.0f ));
 
         renderer = new Renderer(graphicsDevice);
         //hier könnte dann gamelevel inkrementiert werden und mit gameobject amount multipliziert werden
@@ -80,7 +102,7 @@ public class MGDExerciseGame extends Game{
         Vector3 fadenkreuzPos = Vector3.multiply(-8, forwardVector);
         fadenkreuz.setPosition_in_world(Matrix4x4.createTranslation(fadenkreuzPos.getX(), fadenkreuzPos.getY(), fadenkreuzPos.getZ()));
         */
-        Matrix4x4 fadenkreuzWorldMatrix = Matrix4x4.multiply(headView.getInverse(), Matrix4x4.createTranslation(0, 0, -8));
+        Matrix4x4 fadenkreuzWorldMatrix = Matrix4x4.multiply(headView.getInverse(), Matrix4x4.createTranslation(-0.5f, 0.5f, -8f));
         fadenkreuz.setPosition_in_world(fadenkreuzWorldMatrix);
 
         if(fadenkreuz.getShape().intersects(gameObjectList.get(UtilityMethods.gameObjectItertor).getShape())){
@@ -91,6 +113,12 @@ public class MGDExerciseGame extends Game{
             }
         }else{
             MGDExerciseActivity.setCollision(false);
+        }
+
+        menu_btn.setModelTexture("highscore.png");
+        if(fadenkreuz.getShape().intersects(menu_btn.getShape())){
+            Log.e(TAG, "menu button kollision");
+            menu_btn.setModelTexture("highscore_hovered.png");
         }
     }
 
@@ -110,6 +138,10 @@ public class MGDExerciseGame extends Game{
         renderer.drawMesh(fadenkreuz.getModelMesh(),
                           fadenkreuz.getModelMaterial(),
                           fadenkreuz.getGameObjectPositionInWorldMatrix());
+
+        renderer.drawMesh(menu_bg.getModelMesh(), menu_bg.getModelMaterial(), menu_bg.getGameObjectPositionInWorldMatrix());
+
+        renderer.drawMesh(menu_btn.getModelMesh(), menu_btn.getModelMaterial(), menu_btn.getGameObjectPositionInWorldMatrix());
         //Log.e(TAG, "draw aufruf: " + i);
         i++;
         //Log.e("tag", "screen width, height: " +Integer.toString(getScreenWidth())+" , "+Integer.toString(getScreenHeight()) );

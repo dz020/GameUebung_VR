@@ -80,7 +80,11 @@ public class GameObject{
 
     public void setDestroyed(){
         destroyed = true;
-        modelTexture = UtilityMethods.loadTexture("red_shape.png");
+        setModelTexture("red_shape.png");
+    }
+
+    public void setModelTexture(String filename){
+        modelTexture = UtilityMethods.loadTexture(filename);
         modelMaterial = new Material();
         modelMaterial.setTexture(modelTexture);
     }

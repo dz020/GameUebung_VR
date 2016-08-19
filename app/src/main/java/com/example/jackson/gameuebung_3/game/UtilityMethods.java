@@ -9,8 +9,12 @@ import com.example.jackson.gameuebung_3.Mesh;
 import com.example.jackson.gameuebung_3.graphics.Texture;
 import com.example.jackson.gameuebung_3.math.Matrix4x4;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by Jackson on 27.06.2016.
@@ -92,5 +96,32 @@ public class UtilityMethods {
                 MGDExerciseActivity.setToastText(Integer.toString((amount)));
             }
         });
+    }
+
+    public static List<List<String>> getListFromCSV(String csvFileName) throws IOException {
+
+        String line = null;
+        BufferedReader stream = null;
+        List<List<String>> csvData = new ArrayList<List<String>>();
+
+        try {
+            AssetManager assetManager = MGDExerciseGame.context.getAssets();
+            stream = new BufferedReader(new InputStreamReader(assetManager.open(csvFileName)));
+            while ((line = stream.readLine()) != null) {
+                String[] splitted = line.split(";");
+                System.out.println(line);
+                Log.e("linieee aus csv", line);
+                List<String> dataLine = new ArrayList<String>(splitted.length);
+                for (String data : splitted)
+                    dataLine.add(data);
+                csvData.add(dataLine);
+            }
+        } finally {
+            if (stream != null)
+                stream.close();
+        }
+
+        return csvData;
+
     }
 }

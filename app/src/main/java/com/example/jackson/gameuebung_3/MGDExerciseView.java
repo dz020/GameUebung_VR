@@ -16,7 +16,6 @@ import com.google.vrtoolkit.cardboard.EyeTransform;
 import com.google.vrtoolkit.cardboard.HeadTransform;
 import com.google.vrtoolkit.cardboard.Viewport;
 
-import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
@@ -80,8 +79,8 @@ public class MGDExerciseView extends CardboardView implements CardboardView.Ster
             camera.setPreviewTexture(surface);
             camera.startPreview();
         }
-        catch (IOException ioe) {
-            Log.w("MainActivity","CAM LAUNCH FAILED");
+        catch (Exception e) {
+            Log.w("MainActivity","CAM LAUNCH FAILED + e: "+e);
         }
     }
 
