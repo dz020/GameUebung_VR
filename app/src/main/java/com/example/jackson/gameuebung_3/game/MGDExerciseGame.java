@@ -44,6 +44,8 @@ public class MGDExerciseGame extends Game{
         gameState.level = 1;
         createWorld();
 
+        Log.e(TAG, "test loggg");
+
         try {
             List<List<String>> list = UtilityMethods.getListFromCSV("medium.csv");
             for(int i = 0; i< list.size(); i++){
@@ -103,21 +105,24 @@ public class MGDExerciseGame extends Game{
         Matrix4x4 fadenkreuzWorldMatrix = Matrix4x4.multiply(headView.getInverse(), Matrix4x4.createTranslation(-0.5f, 0.5f, -8f));
         fadenkreuz.setPosition_in_world(fadenkreuzWorldMatrix);
 
-        if(fadenkreuz.getShape().intersects(gameObjectList.get(UtilityMethods.gameObjectItertor).getShape())){
-            Log.e(TAG, "collsion detected !!!!!");
-            MGDExerciseActivity.setCollision(true);
-            if(MGDExerciseActivity.noise_deteced == true){
-                gameObjectList.get(UtilityMethods.gameObjectItertor).setDestroyed();
+        for(int i=0; i<gameObjectList.size(); i++){
+            if(fadenkreuz.getShape().intersects(gameObjectList.get(i).getShape())){
+                //Log.e(TAG, "collsion detected !!!!!");
+                MGDExerciseActivity.setCollision(true);
+                if(MGDExerciseActivity.noise_deteced == true){
+                    Log.e(TAG, "noise deteced und abgeschossen");
+                    gameObjectList.get(i).setDestroyed();
+                }
+            }else{
+                MGDExerciseActivity.setCollision(false);
             }
-        }else{
-            MGDExerciseActivity.setCollision(false);
         }
 
-        menu_btn.setModelTexture("highscore.png");
-        if(fadenkreuz.getShape().intersects(menu_btn.getShape())){
-            Log.e(TAG, "menu button kollision");
-            menu_btn.setModelTexture("highscore_hovered.png");
-        }
+        //menu_btn.setModelTexture("highscore.png");
+        //if(fadenkreuz.getShape().intersects(menu_btn.getShape())){
+            //Log.e(TAG, "menu button kollision");
+          //  menu_btn.setModelTexture("highscore_hovered.png");
+        //}
     }
 
     int i = 0;
@@ -131,8 +136,10 @@ public class MGDExerciseGame extends Game{
         for(int i=0; i< gameObjectList.size(); i++){
 //        for(int i=0; i< 5; i++){
             GameObject gameObject = gameObjectList.get(i);
-            gameObject.getGameObjectPositionInWorldMatrix().rotateY(1f);
-            renderer.drawMesh(gameObject.getModelMesh(), gameObject.getModelMaterial(), gameObject.getGameObjectPositionInWorldMatrix());
+            if(gameObject.destroyed == false){
+                gameObject.getGameObjectPositionInWorldMatrix().rotateY(1f);
+                renderer.drawMesh(gameObject.getModelMesh(), gameObject.getModelMaterial(), gameObject.getGameObjectPositionInWorldMatrix());
+            }
         }
 
 //        gameObjectList.get(UtilityMethods.gameObjectItertor).getGameObjectPositionInWorldMatrix().rotateY(1f);

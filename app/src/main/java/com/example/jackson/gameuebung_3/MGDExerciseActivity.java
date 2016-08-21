@@ -104,6 +104,7 @@ public class MGDExerciseActivity extends CardboardActivity {
         mp.release();
         mSensor.stop();
         soundPool.release();
+        MGDExerciseView.camera.release();
         Log.e("onpause", "end");
     }
 

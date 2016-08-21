@@ -38,22 +38,27 @@ public class GraphicsDevice {
         //this.gl = gl;
         //GLES20 gl2;
         //GLES20.glHint(GLES20.GL_PERSPECTIVE_CORRECTION_HINT, GLES20.GL_NICEST);
-        String vertexShaderCode = "uniform mat4 projViewModel; " +
+        String vertexShaderCode =
+                "uniform mat4 projViewModel; " +
                 "attribute vec4 position;" +
                 "attribute vec2 inputTextureCoordinate;" +
                 "varying vec2 textureCoordinate;" +
                 "void main()" +
                 "{" +
-                "gl_Position = projViewModel * position;" +
-                "textureCoordinate = inputTextureCoordinate;" +
+                    "gl_Position = projViewModel * position;" +
+                    "textureCoordinate = inputTextureCoordinate;" +
                 "}";
         int vertexShader = loadGLShader(GLES20.GL_VERTEX_SHADER, vertexShaderCode);
-        String fragmentShaderCode = "precision mediump float;\n" +
+
+        //dieser shader macht das rendering der textur auf die 3d modelle, der passt!
+        String fragmentShaderCode =
+                "#extension GL_OES_EGL_image_external : require\n" +
+                "precision mediump float;\n" +
                 "varying vec2 textureCoordinate;                            \n" +
                 "uniform sampler2D s_texture;               \n" +
                 "void main(void) {" +
-                "  gl_FragColor = texture2D( s_texture, textureCoordinate );\n" +
-                //"  gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);\n" +
+                    "  gl_FragColor = texture2D( s_texture, textureCoordinate );\n" +
+                    //"  gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);\n" +
                 "}";
         int fragmentShader = loadGLShader(GLES20.GL_FRAGMENT_SHADER, fragmentShaderCode);
 
@@ -64,6 +69,7 @@ public class GraphicsDevice {
         mProjViewModelHandle = GLES20.glGetUniformLocation(mProgram, "projViewModel");
         mPositionHandle = GLES20.glGetAttribLocation(mProgram, "position");
         mTextureCoordHandle = GLES20.glGetAttribLocation(mProgram, "inputTextureCoordinate");
+
     }
 
     public void clear(float red, float green, float blue, float alpha){

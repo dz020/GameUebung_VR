@@ -100,8 +100,8 @@ public class GameObject{
 
     public void addData(List<String> list){
         Log.e("aus schleife: ", list.get(1)); //size
-        Log.e("aus schleife: ", list.get(2)); //orbit
-        Log.e("aus schleife: ", list.get(4)); //slot in degree
+        Log.e("aus schleife: ", list.get(2)); //orbit (also y-Achse)
+        Log.e("aus schleife: ", list.get(4)); //slot in degree (also x-Achse)
         Log.e("aus schleife: ", list.get(6)); //totalpoints
         Log.e("aus schleife: ", list.get(7)); //currently active
         this.size = Float.parseFloat(list.get(1));
@@ -113,6 +113,7 @@ public class GameObject{
         Matrix4x4 tmp = Matrix4x4.multiply(rotated_box, position_in_world);
         position_in_world = tmp;
         this.active = Boolean.getBoolean(list.get(7));
+ //       shape = new Sphere(slot, (orbit/size), -8f, (size/2));
     }
 }
 

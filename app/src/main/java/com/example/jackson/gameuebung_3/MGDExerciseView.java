@@ -3,6 +3,7 @@ package com.example.jackson.gameuebung_3;
 import android.content.Context;
 import android.graphics.SurfaceTexture;
 import android.hardware.Camera;
+import android.opengl.GLES11Ext;
 import android.opengl.GLES20;
 import android.opengl.Matrix;
 import android.util.AttributeSet;
@@ -68,16 +69,18 @@ public class MGDExerciseView extends CardboardView implements CardboardView.Ster
     private SurfaceTexture surface;
     private float[] mView;
     private float[] mCamera;
+    public static Camera camera;
 
     public void startCamera(int texture) {
         surface = new SurfaceTexture(texture);
         surface.setOnFrameAvailableListener(this);
 
-        Camera camera = Camera.open();
+        camera = Camera.open();
 
         try {
             camera.setPreviewTexture(surface);
             camera.startPreview();
+            Log.e(TAG, "start camera");
         }
         catch (Exception e) {
             Log.w("MainActivity","CAM LAUNCH FAILED + e: "+e);
@@ -90,6 +93,8 @@ public class MGDExerciseView extends CardboardView implements CardboardView.Ster
         GLES20.glGenTextures(1, texture, 0);
 
         GLES20.glBindTexture(GL_TEXTURE_EXTERNAL_OES, texture[0]);
+
+        Log.e(TAG, "create texture aufgerufen");
 
         GLES20.glTexParameterf(GL_TEXTURE_EXTERNAL_OES,
                 GL10.GL_TEXTURE_MIN_FILTER,GL10.GL_LINEAR);
@@ -119,20 +124,22 @@ public class MGDExerciseView extends CardboardView implements CardboardView.Ster
     @Override
     public void onFrameAvailable(SurfaceTexture surfaceTexture) {
         this.requestRender();
-        //Log.e(TAG, "on frame availabe: "+i);
+        Log.e(TAG, "on frame availabe: "+i);
         i++;
     }
 
     @Override
     public void onNewFrame(HeadTransform headTransform) {
         float[] mtx = new float[16];
+        //Log.e(TAG, "on new frame: "+i);
+        //i++;
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
         surface.updateTexImage();
         surface.getTransformMatrix(mtx);
         headTransform.getHeadView(headView.m, 0);
         mgdExerciseGame.setHeadView(headView);
         mgdExerciseGame.update(0);
-
+        //System.gc();
     }
 
     private Matrix4x4 headView = new Matrix4x4();
@@ -145,21 +152,36 @@ public class MGDExerciseView extends CardboardView implements CardboardView.Ster
 
         GLES20.glUseProgram(mProgram);
 
-//        GLES20.glActiveTexture(GL_TEXTURE_EXTERNAL_OES); hier könnte eventuell GL_TEXTURE0 stehen
-//        GLES20.glBindTexture(GL_TEXTURE_EXTERNAL_OES, texture);
-        GLES20.glActiveTexture(GLES20.GL_ACTIVE_TEXTURE);
-        GLES20.glBindTexture(GL_TEXTURE_EXTERNAL_OES, texture);
+        //Log.e(TAG, "on draw eye");
+
+        GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
+        GLES20.glBindTexture(GLES11Ext.GL_TEXTURE_EXTERNAL_OES, texture);
+
+        //GLES20.glActiveTexture(GL_TEXTURE_EXTERNAL_OES); hier könnte eventuell GL_TEXTURE0 stehen
+        //GLES20.glBindTexture(GL_TEXTURE_EXTERNAL_OES, texture);
+        //GLES20.glActiveTexture(GLES20.GL_ACTIVE_TEXTURE);
+        //GLES20.glBindTexture(GL_TEXTURE_EXTERNAL_OES, texture);
 
         int mPositionHandle = GLES20.glGetAttribLocation(mProgram, "position");
         GLES20.glEnableVertexAttribArray(mPositionHandle);
         int vertexStride = COORDS_PER_VERTEX * 4;
-        GLES20.glVertexAttribPointer(mPositionHandle, COORDS_PER_VERTEX, GLES20.GL_FLOAT,
-                false, vertexStride, vertexBuffer);
+        GLES20.glVertexAttribPointer(
+                                        mPositionHandle,
+                                        COORDS_PER_VERTEX,
+                                        GLES20.GL_FLOAT,
+                                        false,
+                                        vertexStride,
+                                        vertexBuffer);
 
         int mTextureCoordHandle = GLES20.glGetAttribLocation(mProgram, "inputTextureCoordinate");
         GLES20.glEnableVertexAttribArray(mTextureCoordHandle);
-        GLES20.glVertexAttribPointer(mTextureCoordHandle, COORDS_PER_VERTEX, GLES20.GL_FLOAT,
-                false, vertexStride, textureVerticesBuffer);
+        GLES20.glVertexAttribPointer(
+                                        mTextureCoordHandle,
+                                        COORDS_PER_VERTEX,
+                                        GLES20.GL_FLOAT,
+                                        false,
+                                        vertexStride,
+                                        textureVerticesBuffer);
 
         int mColorHandle = GLES20.glGetAttribLocation(mProgram, "s_texture");
 
@@ -187,7 +209,7 @@ public class MGDExerciseView extends CardboardView implements CardboardView.Ster
 
     @Override
     public void onSurfaceCreated(EGLConfig eglConfig) {
-        //Log.i(TAG, "onSurfaceCreated");
+        Log.e(TAG, "onSurfaceCreated");
         //GLES20.glClearColor(0.1f, 0.1f, 0.1f, 0.5f); // Dark background so text shows up well
 
         ByteBuffer bb = ByteBuffer.allocateDirect(squareVertices.length * 4);
@@ -221,8 +243,11 @@ public class MGDExerciseView extends CardboardView implements CardboardView.Ster
 
         int vertexShader = loadGLShader(GLES20.GL_VERTEX_SHADER, vertexShaderCode);
 
-        String fragmentShaderCode = "#extension GL_OES_EGL_image_external : require\n" +
+        //macht das rendering von den kamera bildern in den hintergrund
+        String fragmentShaderCode =
+                "#extension GL_OES_EGL_image_external : require\n" +
                 "precision mediump float;" +
+                "uniform vec4 vColor; \n" +
                 "varying vec2 textureCoordinate;                            \n" +
                 "uniform samplerExternalOES s_texture;               \n" +
                 "void main(void) {" +
