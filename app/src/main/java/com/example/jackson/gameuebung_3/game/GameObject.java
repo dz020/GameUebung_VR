@@ -49,7 +49,7 @@ public class GameObject{
             modelMaterial.setTexture(modelTexture);
             modelMaterial.setDepthTestFunction(CompareFunction.ALWAYS); //sorgt dafür dass ein z index erzeugt wird
 
-            shape = new Sphere(getMittelpunkt(), 1f);
+            shape = new Sphere(getMittelpunkt(), 1.5f); //gilt bisher nur für fadenkreuz und menü buttons
         }
     }
 
@@ -111,9 +111,32 @@ public class GameObject{
         this.slot = Float.parseFloat(list.get(4));
         Matrix4x4 rotated_box = Matrix4x4.createRotationY(slot);
         Matrix4x4 tmp = Matrix4x4.multiply(rotated_box, position_in_world);
-        position_in_world = tmp;
         this.active = Boolean.getBoolean(list.get(7));
+        setPosition_in_world(tmp);
+
+        shape = new Sphere(getMittelpunkt(), (size)/2);
+
+
+        Mesh mesh = UtilityMethods.loadMesh("sphere.obj");
+        Texture texture = UtilityMethods.loadTexture("blue_shape.png");
+        Material material = new Material();
+        material.setTexture(texture);
+        material.setDepthTestFunction(CompareFunction.ALWAYS); //sorgt dafür dass ein z index erzeugt wird
+        shape.addData(mesh, material);
  //       shape = new Sphere(slot, (orbit/size), -8f, (size/2));
+    }
+
+    public void makeShapeVisible(String meshfile, String texturefile){
+        Mesh mesh = UtilityMethods.loadMesh(meshfile);
+        Texture texture = UtilityMethods.loadTexture(texturefile);
+        Material material = new Material();
+        material.setTexture(texture);
+        material.setDepthTestFunction(CompareFunction.ALWAYS); //sorgt dafür dass ein z index erzeugt wird
+        shape.addData(mesh, material);
+    }
+
+    public float getOrbit(){
+         return this.orbit;
     }
 }
 

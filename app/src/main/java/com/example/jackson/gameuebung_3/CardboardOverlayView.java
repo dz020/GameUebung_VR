@@ -19,7 +19,6 @@ package com.example.jackson.gameuebung_3;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.Typeface;
-import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 import android.util.TypedValue;
 import android.view.Gravity;
@@ -27,7 +26,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -62,9 +60,9 @@ public class CardboardOverlayView extends LinearLayout {
 
         //mTextFadeAnimation = new AlphaAnimation(1.0f, 0.0f);
         //mTextFadeAnimation.setDuration(5000);
-        Drawable fadenkreuz = getResources().getDrawable(R.drawable.fadenkreuz);
-        mLeftView.imageView.setImageDrawable(fadenkreuz);
-        mRightView.imageView.setImageDrawable(fadenkreuz);
+//        Drawable fadenkreuz = getResources().getDrawable(R.drawable.fadenkreuz);
+ //       mLeftView.imageView.setImageDrawable(fadenkreuz);
+  //      mRightView.imageView.setImageDrawable(fadenkreuz);
     }
 
     public void show3DToast(String message) {
@@ -111,17 +109,18 @@ public class CardboardOverlayView extends LinearLayout {
      * This is a helper class for CardboardOverlayView.
      */
     private class CardboardOverlayEyeView extends ViewGroup {
-        private final ImageView imageView;
+        //private final ImageView imageView;
         private final TextView textView;
         private float offset;
 
         public CardboardOverlayEyeView(Context context, AttributeSet attrs) {
             super(context, attrs);
-            imageView = new ImageView(context, attrs);
+            //fadenkreuz
+/*            imageView = new ImageView(context, attrs);
             imageView.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
             imageView.setAdjustViewBounds(true);  // Preserve aspect ratio.
             addView(imageView);
-
+*/
             textView = new TextView(context, attrs);
             textView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 14.0f);
             textView.setTypeface(textView.getTypeface(), Typeface.BOLD);
@@ -131,7 +130,7 @@ public class CardboardOverlayView extends LinearLayout {
         }
 
         public void setColor(int color) {
-            imageView.setColorFilter(color);
+           // imageView.setColorFilter(color);
             textView.setTextColor(color);
         }
 
@@ -169,9 +168,9 @@ public class CardboardOverlayView extends LinearLayout {
             float imageMargin = (1.0f - imageSize) / 2.0f;
             float leftMargin = (int) (width * (imageMargin + offset));
             float topMargin = (int) (height * (imageMargin + verticalImageOffset));
-            imageView.layout(
-                (int) leftMargin, (int) topMargin,
-                (int) (leftMargin + width * imageSize), (int) (topMargin + height * imageSize));
+            //imageView.layout(
+              //  (int) leftMargin, (int) topMargin,
+               // (int) (leftMargin + width * imageSize), (int) (topMargin + height * imageSize));
 
             // Layout TextView
             leftMargin = offset * width;

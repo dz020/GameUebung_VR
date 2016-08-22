@@ -47,7 +47,7 @@ public class MGDExerciseGame extends Game{
         Log.e(TAG, "test loggg");
 
         try {
-            List<List<String>> list = UtilityMethods.getListFromCSV("medium.csv");
+            List<List<String>> list = UtilityMethods.getListFromCSV("mixed.csv");
             for(int i = 0; i< list.size(); i++){
                 GameObject gameObject = new GameObject("box.obj", "box.png");
                 gameObject.addData(list.get(i));
@@ -62,6 +62,7 @@ public class MGDExerciseGame extends Game{
 //        UtilityMethods.countDown();
 
         fadenkreuz = new GameObject("quad.obj", "fadenkreuz.png");
+        fadenkreuz.makeShapeVisible("sphere.obj", "yellow.png");
 
         menu_bg = new GameObject("quad.obj", "menu.png");
         menu_btn = new GameObject("quad.obj", "highscore.png");
@@ -106,14 +107,15 @@ public class MGDExerciseGame extends Game{
         fadenkreuz.setPosition_in_world(fadenkreuzWorldMatrix);
 
         for(int i=0; i<gameObjectList.size(); i++){
-            if(fadenkreuz.getShape().intersects(gameObjectList.get(i).getShape())){
+            if(fadenkreuz.getShape().intersects(gameObjectList.get(i).getShape(), gameObjectList.get(i).getOrbit())){
                 //Log.e(TAG, "collsion detected !!!!!");
                 MGDExerciseActivity.setCollision(true);
-                if(MGDExerciseActivity.noise_deteced == true){
+                //if(MGDExerciseActivity.noise_deteced == true){
                     Log.e(TAG, "noise deteced und abgeschossen");
                     gameObjectList.get(i).setDestroyed();
-                }
+                //}
             }else{
+                gameObjectList.get(i).setModelTexture("box.png");
                 MGDExerciseActivity.setCollision(false);
             }
         }
@@ -136,10 +138,11 @@ public class MGDExerciseGame extends Game{
         for(int i=0; i< gameObjectList.size(); i++){
 //        for(int i=0; i< 5; i++){
             GameObject gameObject = gameObjectList.get(i);
-            if(gameObject.destroyed == false){
+            //if(gameObject.destroyed == false){
                 gameObject.getGameObjectPositionInWorldMatrix().rotateY(1f);
                 renderer.drawMesh(gameObject.getModelMesh(), gameObject.getModelMaterial(), gameObject.getGameObjectPositionInWorldMatrix());
-            }
+                renderer.drawMesh(gameObject.shape.getMesh(), gameObject.shape.getMaterial(), gameObject.getGameObjectPositionInWorldMatrix());
+            //}
         }
 
 //        gameObjectList.get(UtilityMethods.gameObjectItertor).getGameObjectPositionInWorldMatrix().rotateY(1f);
@@ -155,6 +158,8 @@ public class MGDExerciseGame extends Game{
         renderer.drawMesh(fadenkreuz.getModelMesh(),
                           fadenkreuz.getModelMaterial(),
                           fadenkreuz.getGameObjectPositionInWorldMatrix());
+
+//        renderer.drawMesh(fadenkreuz.shape.getMesh(), fadenkreuz.shape.getMaterial(), fadenkreuz.getGameObjectPositionInWorldMatrix());
 
         //renderer.drawMesh(menu_bg.getModelMesh(), menu_bg.getModelMaterial(), menu_bg.getGameObjectPositionInWorldMatrix());
 
