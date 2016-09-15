@@ -38,7 +38,8 @@ public class MGDExerciseActivity extends CardboardActivity {
     private SoundMeter mSensor;
     private int mThreshold = 5;
     private Handler mHandler = new Handler();
-    private static final int POLL_INTERVAL = 600; //ist auch die verzögerung bis laser sound erklingt
+    private static final int POLL_INTERVAL = 500; //ist auch die verzögerung bis laser sound erklingt
+    private static int GAME_DURATION = 18000; // 18 sek
     private static SoundPool soundPool;
     private static int laserSound;
     private static int beepSound;
@@ -170,18 +171,44 @@ public class MGDExerciseActivity extends CardboardActivity {
 
     // Create runnable thread to Monitor Voice
     final Runnable mPollTask = new Runnable() {
+
+        private volatile boolean mIsStopped = false;
+        private boolean increaseTimeAllowed = false;
+
         public void run() {
             double amp = mSensor.getAmplitude();
             //Log.e("Noise", "runnable mPollTask " + amp);
-            if ((amp > mThreshold)) {
-                callForHelp(amp);
-                noise_deteced = true;
+            if(mIsStopped == false && GAME_DURATION > 0){
+                if ((amp > mThreshold)) {
+                    callForHelp(amp);
+                    noise_deteced = true;
+                }
+                else{
+                    noise_deteced = false;
+                }
+                // Runnable(mPollTask) will again execute after POLL_INTERVAL
+                mHandler.postDelayed(mPollTask, POLL_INTERVAL);
+                GAME_DURATION = GAME_DURATION - POLL_INTERVAL;
+                if(increaseTimeAllowed == false){
+                    increaseTimeAllowed = true;
+                    Log.e("übrige zeit", ""+(GAME_DURATION/1000));
+                }else{
+                    increaseTimeAllowed = false;
+                }
             }
             else{
-                noise_deteced = false;
+                stop();
             }
-            // Runnable(mPollTask) will again execute after POLL_INTERVAL
-            mHandler.postDelayed(mPollTask, POLL_INTERVAL);
+        }
+
+        private void setStopped(boolean isStop) {
+            if (mIsStopped != isStop)
+                mIsStopped = isStop;
+        }
+
+        public void stop() {
+            setStopped(true);
+            Log.e("stop", "zeit vorbei-------------------------------------");
         }
     };
 }
