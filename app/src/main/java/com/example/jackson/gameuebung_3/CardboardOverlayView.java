@@ -112,6 +112,9 @@ public class CardboardOverlayView extends LinearLayout {
         //private final ImageView imageView;
         private final TextView textView;
         private float offset;
+        private final TextView scoreView;
+        private final TextView timeView;
+
 
         public CardboardOverlayEyeView(Context context, AttributeSet attrs) {
             super(context, attrs);
@@ -127,6 +130,10 @@ public class CardboardOverlayView extends LinearLayout {
             textView.setGravity(Gravity.CENTER);
             textView.setShadowLayer(3.0f, 0.0f, 0.0f, Color.DKGRAY);
             addView(textView);
+            scoreView = new TextView(context);
+            addView(scoreView);
+            timeView = new TextView(context);
+            addView(timeView);
         }
 
         public void setColor(int color) {
@@ -138,6 +145,16 @@ public class CardboardOverlayView extends LinearLayout {
             textView.setText(text);
         }
 
+        public void setTime(String text){
+            mLeftView.timeView.setText(text);
+            mRightView.timeView.setText(text);
+        }
+
+        public void setScore(String text){
+            mLeftView.scoreView.setText(text);
+            mRightView.scoreView.setText(text);
+        }
+
         public void setTextViewAlpha(float alpha) {
             textView.setAlpha(alpha);
         }
@@ -145,6 +162,7 @@ public class CardboardOverlayView extends LinearLayout {
         public void setOffset(float offset) {
             this.offset = offset;
         }
+
 
         @Override
         protected void onLayout(boolean changed, int left, int top, int right, int bottom) {

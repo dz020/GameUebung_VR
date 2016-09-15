@@ -16,6 +16,7 @@
 
 package com.example.jackson.gameuebung_3;
 
+import android.app.ActivityManager;
 import android.media.MediaPlayer;
 import android.media.SoundPool;
 import android.os.Bundle;
@@ -43,6 +44,8 @@ public class MGDExerciseActivity extends CardboardActivity {
     private static int beepSound;
     private static int finalBeepSound;
     private static int coinSound;
+    public static ActivityManager activityManager;
+    public static ActivityManager.MemoryInfo memoryInfo;
 
 
     public static SoundPool getSoundPool() {
@@ -79,6 +82,10 @@ public class MGDExerciseActivity extends CardboardActivity {
         mp.setVolume(0.7f, 0.7f);
         mp.setLooping(true);
         mSensor = new SoundMeter();
+
+        activityManager =  (ActivityManager) getSystemService(ACTIVITY_SERVICE);
+        memoryInfo = new ActivityManager.MemoryInfo();
+        activityManager.getMemoryInfo(memoryInfo);
 
         soundPool = new SoundPool.Builder().setMaxStreams(4).build();
         laserSound = soundPool.load(getApplicationContext(), R.raw.laser, 3); // in 2nd param u have to pass your desire ringtone

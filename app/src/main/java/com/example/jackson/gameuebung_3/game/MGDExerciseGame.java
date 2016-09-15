@@ -82,6 +82,9 @@ public class MGDExerciseGame extends Game{
 
     @Override
     public void update(float deltaSeconds) {
+
+        Log.e("memory free", "" + MGDExerciseActivity.memoryInfo.availMem);
+
         /*Vector3 screenTouchPosition = new Vector3( screenWidth/2-1, screenHeight/2-1, 0 );
         Vector3 worldTouchPosition = camera.unproject(screenTouchPosition, 1);
 

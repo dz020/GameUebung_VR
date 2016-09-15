@@ -188,15 +188,10 @@ public class GraphicsDevice {
      * @param stream
      * @return
      */
+    Bitmap bitmap;
     public Texture createTexture(InputStream stream) {
-        Bitmap bitmap = BitmapFactory.decodeStream(stream);
-        if (bitmap == null) {
-            return null;
-        }
-        return createTexture(bitmap);
-    }
+        bitmap = BitmapFactory.decodeStream(stream);
 
-    public Texture createTexture(Bitmap bitmap) {
         int level = 0;
         int width = bitmap.getWidth();
         int height = bitmap.getHeight();
@@ -229,7 +224,7 @@ public class GraphicsDevice {
 
             bitmap = Bitmap.createScaledBitmap(bitmap, width, height, true);
         }
-
+        bitmap.recycle();
         return texture;
     }
 
