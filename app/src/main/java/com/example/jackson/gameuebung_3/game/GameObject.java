@@ -31,6 +31,8 @@ public class GameObject{
     public float points;
     public boolean active;
 
+    public String type = "normal_box";
+
     public GameObject(String mesh_filname, String texture_filename){
         if(true){
             position_in_world = new Matrix4x4();
@@ -136,6 +138,14 @@ public class GameObject{
 
     public float getOrbit(){
          return this.orbit;
+    }
+
+    public void setType(String type){
+        this.type = type;
+    }
+
+    public String getType(){
+        return this.type;
     }
 }
 

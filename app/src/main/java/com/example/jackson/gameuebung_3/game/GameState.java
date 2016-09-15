@@ -10,8 +10,19 @@ public class GameState {
     public int level;
     public float current_score;
     public boolean game_over = false;
+    public int current_ammo = 8;
+    public int max_ammo = 8;
+    public int increase_ammo = 3;
 
     public GameState() {
+    }
+
+    public int getIncrease_ammo() {
+        return increase_ammo;
+    }
+
+    public void setIncrease_ammo(int increase_ammo) {
+        this.increase_ammo = increase_ammo;
     }
 
     public int getGameObject_amount() {
@@ -32,6 +43,22 @@ public class GameState {
 
     public float getCurrent_score() {
         return current_score;
+    }
+
+    public int getCurrent_ammo() {
+        return current_ammo;
+    }
+
+    public void setCurrent_ammo(int current_ammo) {
+        this.current_ammo = current_ammo;
+    }
+
+    public int getMax_ammo() {
+        return max_ammo;
+    }
+
+    public void setMax_ammo(int max_ammo) {
+        this.max_ammo = max_ammo;
     }
 
     public void setCurrent_score(float current_score) {

@@ -36,6 +36,7 @@ public class MGDExerciseGame extends Game{
     GameObject fadenkreuz;
     GameObject menu_bg;
     GameObject menu_btn;
+    GameObject munitions_box;
     Matrix4x4 fadenkreuzMatrix;
 
     @Override
@@ -58,8 +59,6 @@ public class MGDExerciseGame extends Game{
         }
 
         gameState.setGameObject_amount(1);
-//        gameObjectList.add(new GameObject("box.obj", "box.png"));
-//        UtilityMethods.countDown();
 
         fadenkreuz = new GameObject("quad.obj", "fadenkreuz.png");
         fadenkreuz.makeShapeVisible("sphere.obj", "yellow.png");
@@ -72,6 +71,11 @@ public class MGDExerciseGame extends Game{
         menu_bg.setPosition_in_world(tmp.scale(6,10,1));
         menu_btn.setPosition_in_world(test.scale(1.3f, 0.7f, 1.0f ));
 
+        munitions_box = new GameObject("box.obj", "munition.png");
+        munitions_box.setPosition_in_world(test.scale(1.3f, 0.7f, 1.0f ));
+        munitions_box.setType("munitions_box");
+        gameObjectList.add(munitions_box);
+
         renderer = new Renderer(graphicsDevice);
         //hier könnte dann gamelevel inkrementiert werden und mit gameobject amount multipliziert werden
     }
@@ -83,20 +87,6 @@ public class MGDExerciseGame extends Game{
     @Override
     public void update(float deltaSeconds) {
 
-        //Log.e("memory free", "" + MGDExerciseActivity.memoryInfo.availMem);
-
-        /*Vector3 screenTouchPosition = new Vector3( screenWidth/2-1, screenHeight/2-1, 0 );
-        Vector3 worldTouchPosition = camera.unproject(screenTouchPosition, 1);
-
-        Point touchPoint = new Point(0, 0);
-        if(touchPoint.intersects(g)
-
-        for (int i = 0; i < aabbMenu.length; ++i) {
-            AABB aabb = aabbMenu[i];
-            if (touchPoint.intersects(aabb)) {
-                Log.e(TAG, "COLLISION DETECTED !!!!!!!!!!!!!!!!!!!!!!!!!");
-            }
-        }*/
         //Matrix4x4.createTranslation(shape_position_in_world.getX(), shape_position_in_world.getY(), -8f);
         //Log.e(TAG, "position von shape X: " + shape_position_in_world.getX() + " Y: " + shape_position_in_world.getY());
         //Log.e(TAG, "position von gameObject X: "+gameObjectList.get(UtilityMethods.gameObjectItertor).getShape().getPosition().getX()+" Y: "+gameObjectList.get(UtilityMethods.gameObjectItertor).getShape().getPosition().getY());
@@ -118,8 +108,15 @@ public class MGDExerciseGame extends Game{
                     if (MGDExerciseActivity.noise_deteced == true && gameObjectList.get(i).destroyed == false) {
                         //Log.e(TAG, "noise deteced und abgeschossen");
                         gameObjectList.get(i).setDestroyed();
-                        gameState.setCurrent_score(gameState.getCurrent_score() + gameObjectList.get(i).points);
-                        Log.e("aktueller score:", "" + gameState.getCurrent_score());
+                        if(gameObjectList.get(i).getType().equals("munitions_box")){
+                            gameState.current_ammo = gameState.current_ammo + gameState.increase_ammo; //aktuell um 3 erhöhen
+                            if(gameState.current_ammo > gameState.max_ammo){
+                                gameState.current_ammo = gameState.max_ammo;
+                            }
+                        }else{
+                            gameState.setCurrent_score(gameState.getCurrent_score() + gameObjectList.get(i).points);
+                            Log.e("aktueller score:", "" + gameState.getCurrent_score());
+                        }
                     }
                 } else {
                     //gameObjectList.get(i).setModelTexture("box.png");
@@ -135,55 +132,31 @@ public class MGDExerciseGame extends Game{
         }
     }
 
-    int i = 0;
     @Override
     public void draw(float deltaSeconds) {
         graphicsDevice.setCamera(this.camera);
         if(gameState.game_over == false){
-            //graphicsDevice.clear(1.0f, 0.5f, 0.0f, 1.0f, 1.0f); //hintergrund farbe ändern
             GLES20.glClearDepthf(1.0f);
             GLES20.glClear(GLES20.GL_DEPTH_BUFFER_BIT);
 
             for(int i=0; i< gameObjectList.size(); i++){
-//        for(int i=0; i< 5; i++){
                 GameObject gameObject = gameObjectList.get(i);
                 //if(gameObject.destroyed == false){
                 gameObject.getGameObjectPositionInWorldMatrix().rotateY(1f);
                 renderer.drawMesh(gameObject.getModelMesh(), gameObject.getModelMaterial(), gameObject.getGameObjectPositionInWorldMatrix());
-                renderer.drawMesh(gameObject.shape.getMesh(), gameObject.shape.getMaterial(), gameObject.getGameObjectPositionInWorldMatrix());
+                //renderer.drawMesh(gameObject.shape.getMesh(), gameObject.shape.getMaterial(), gameObject.getGameObjectPositionInWorldMatrix());
                 //}
             }
 
-//        gameObjectList.get(UtilityMethods.gameObjectItertor).getGameObjectPositionInWorldMatrix().rotateY(1f);
+//            renderer.drawMesh(munitions_box.getModelMesh(), munitions_box.getModelMaterial(), munitions_box.getGameObjectPositionInWorldMatrix());
 
-            //      renderer.drawMesh(gameObjectList.get(UtilityMethods.gameObjectItertor).getModelMesh(),
-            //            gameObjectList.get(UtilityMethods.gameObjectItertor).getModelMaterial(),
-            //          gameObjectList.get(UtilityMethods.gameObjectItertor).getGameObjectPositionInWorldMatrix());
-
-
-
-
-
-            renderer.drawMesh(fadenkreuz.getModelMesh(),
-                    fadenkreuz.getModelMaterial(),
-                    fadenkreuz.getGameObjectPositionInWorldMatrix());
-
-//        renderer.drawMesh(fadenkreuz.shape.getMesh(), fadenkreuz.shape.getMaterial(), fadenkreuz.getGameObjectPositionInWorldMatrix());
-
-            //renderer.drawMesh(menu_bg.getModelMesh(), menu_bg.getModelMaterial(), menu_bg.getGameObjectPositionInWorldMatrix());
-
-            //renderer.drawMesh(menu_btn.getModelMesh(), menu_btn.getModelMaterial(), menu_btn.getGameObjectPositionInWorldMatrix());
-            //Log.e(TAG, "draw aufruf: " + i);
-            i++;
-            //Log.e("tag", "screen width, height: " +Integer.toString(getScreenWidth())+" , "+Integer.toString(getScreenHeight()) );
+            renderer.drawMesh(fadenkreuz.getModelMesh(), fadenkreuz.getModelMaterial(), fadenkreuz.getGameObjectPositionInWorldMatrix());
         }
         else{
             graphicsDevice.clear(1.0f, 0.5f, 0.0f, 1.0f, 1.0f); //hintergrund farbe ändern
             renderer.drawMesh(menu_bg.getModelMesh(), menu_bg.getModelMaterial(), menu_bg.getGameObjectPositionInWorldMatrix());
             renderer.drawMesh(menu_btn.getModelMesh(), menu_btn.getModelMaterial(), menu_btn.getGameObjectPositionInWorldMatrix());
-            renderer.drawMesh(fadenkreuz.getModelMesh(),
-                    fadenkreuz.getModelMaterial(),
-                    fadenkreuz.getGameObjectPositionInWorldMatrix());
+            renderer.drawMesh(fadenkreuz.getModelMesh(), fadenkreuz.getModelMaterial(), fadenkreuz.getGameObjectPositionInWorldMatrix());
         }
     }
 

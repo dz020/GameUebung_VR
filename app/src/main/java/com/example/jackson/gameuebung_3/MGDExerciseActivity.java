@@ -40,7 +40,7 @@ public class MGDExerciseActivity extends CardboardActivity {
     private int mThreshold = 5;
     private Handler mHandler = new Handler();
     private static final int POLL_INTERVAL = 500; //ist auch die verzögerung bis laser sound erklingt
-    private static int GAME_DURATION = 18000; // 18 sek
+    private static int GAME_DURATION = 30000; // 30 sek
     private static SoundPool soundPool;
     private static int laserSound;
     private static int beepSound;
@@ -180,9 +180,11 @@ public class MGDExerciseActivity extends CardboardActivity {
             double amp = mSensor.getAmplitude();
             //Log.e("Noise", "runnable mPollTask " + amp);
             if(mIsStopped == false && GAME_DURATION > 0){
-                if ((amp > mThreshold)) {
+                if (amp > mThreshold && MGDExerciseGame.gameState.current_ammo > 0 ) { //wenn schuss abgegeben und munition verfügbar
                     callForHelp(amp);
                     noise_deteced = true;
+                    MGDExerciseGame.gameState.current_ammo--; //munition dekrementieren
+                    Log.e("munition übrig: ", ""+MGDExerciseGame.gameState.current_ammo);
                 }
                 else{
                     noise_deteced = false;
