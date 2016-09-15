@@ -52,7 +52,7 @@ public class UtilityMethods {
                     public void onTick(long millisUntilFinished) {
                         int beepSound = MGDExerciseActivity.getBeepSound();
                         if(millisUntilFinished>1000){
-                            Log.e(MGDExerciseGame.TAG, "Sekunde: "+millisUntilFinished);
+                            //Log.e(MGDExerciseGame.TAG, "Sekunde: "+millisUntilFinished);
                             MGDExerciseActivity.getSoundPool().play(beepSound, 0.05f, 0.05f, 0, 0, 1);
                         }
                     }
@@ -61,7 +61,7 @@ public class UtilityMethods {
                     public void onFinish() {
                         int finalBeepSound = MGDExerciseActivity.getFinalBeepSound();
                         MGDExerciseActivity.getSoundPool().play(finalBeepSound, 0.05f, 0.05f, 0, 0, 1);
-                        Log.e("TAG", "countdown abgelaufen");
+                        //Log.e("TAG", "countdown abgelaufen");
                         repositionGameObject(new GameObject("box.obj", "box.png"));
                         //createGameObject("box.obj", "box.png");
 //                        renderer.drawMesh(modelMesh, modelMaterial, gameObjectList.get(1));
@@ -78,7 +78,7 @@ public class UtilityMethods {
     public static void repositionGameObject(GameObject gameObject){
         Matrix4x4 box = gameObject.getGameObjectPositionInWorldMatrix();
         Matrix4x4 rotated_box = Matrix4x4.createRotationY(rotation);
-        Log.e(MGDExerciseGame.TAG, "game object erzeugt mit rotation winkel: " + rotation);
+        //Log.e(MGDExerciseGame.TAG, "game object erzeugt mit rotation winkel: " + rotation);
         Matrix4x4 tmp = Matrix4x4.multiply(rotated_box, box);
         if(rotation == 360){
             rotation = 45;
@@ -110,7 +110,7 @@ public class UtilityMethods {
             while ((line = stream.readLine()) != null) {
                 String[] splitted = line.split(";");
                 System.out.println(line);
-                Log.e("linieee aus csv", line);
+                //Log.e("linieee aus csv", line);
                 List<String> dataLine = new ArrayList<String>(splitted.length);
                 for (String data : splitted)
                     dataLine.add(data);

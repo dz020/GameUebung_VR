@@ -1,7 +1,5 @@
 package com.example.jackson.gameuebung_3.collision;
 
-import android.util.Log;
-
 import com.example.jackson.gameuebung_3.Mesh;
 import com.example.jackson.gameuebung_3.graphics.Material;
 import com.example.jackson.gameuebung_3.math.Matrix4x4;
@@ -35,7 +33,7 @@ public class Sphere implements Shape3D {
 		float distSqr = Vector3.subtract(sphere.center, this.center).getLengthSqr();
 		float test =  (this.radius + sphere.radius) * (this.radius + sphere.radius);
 //		if( distSqr <= (this.radius + sphere.radius) * (this.radius + sphere.radius) ){
-			Log.e("distSqr", String.valueOf(distSqr)+" und "+String.valueOf(test));
+			//Log.e("distSqr", String.valueOf(distSqr)+" und "+String.valueOf(test));
 //		}
 		float x = 0;
         if(orbit == 12f || orbit == -12f){

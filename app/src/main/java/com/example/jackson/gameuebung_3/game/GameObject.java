@@ -1,7 +1,5 @@
 package com.example.jackson.gameuebung_3.game;
 
-import android.util.Log;
-
 import com.example.jackson.gameuebung_3.Mesh;
 import com.example.jackson.gameuebung_3.collision.Shape3D;
 import com.example.jackson.gameuebung_3.collision.Sphere;
@@ -99,16 +97,17 @@ public class GameObject{
     }
 
     public void addData(List<String> list){
-        Log.e("aus schleife: ", list.get(1)); //size
-        Log.e("aus schleife: ", list.get(2)); //orbit (also y-Achse)
-        Log.e("aus schleife: ", list.get(4)); //slot in degree (also x-Achse)
-        Log.e("aus schleife: ", list.get(6)); //totalpoints
-        Log.e("aus schleife: ", list.get(7)); //currently active
+        //Log.e("aus schleife: ", list.get(1)); //size
+        //Log.e("aus schleife: ", list.get(2)); //orbit (also y-Achse)
+        //Log.e("aus schleife: ", list.get(4)); //slot in degree (also x-Achse)
+        //Log.e("aus schleife: ", list.get(6)); //totalpoints
+        //Log.e("aus schleife: ", list.get(7)); //currently active
         this.size = Float.parseFloat(list.get(1));
         position_in_world.scale(size);
         this.orbit = Float.parseFloat(list.get(2));
         position_in_world.translate(0f, (orbit/size), 0f); //orbit/size damit optische position im raum immer gleich bleibt
         this.slot = Float.parseFloat(list.get(4));
+        this.points = Float.parseFloat(list.get(6));
         Matrix4x4 rotated_box = Matrix4x4.createRotationY(slot);
         Matrix4x4 tmp = Matrix4x4.multiply(rotated_box, position_in_world);
         this.active = Boolean.getBoolean(list.get(7));

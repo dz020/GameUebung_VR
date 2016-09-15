@@ -124,7 +124,7 @@ public class MGDExerciseView extends CardboardView implements CardboardView.Ster
     @Override
     public void onFrameAvailable(SurfaceTexture surfaceTexture) {
         this.requestRender();
-        Log.e(TAG, "on frame availabe: "+i);
+        //Log.e(TAG, "on frame availabe: "+i);
         i++;
     }
 

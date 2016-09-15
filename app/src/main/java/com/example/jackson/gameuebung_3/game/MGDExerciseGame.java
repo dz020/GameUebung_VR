@@ -83,7 +83,7 @@ public class MGDExerciseGame extends Game{
     @Override
     public void update(float deltaSeconds) {
 
-        Log.e("memory free", "" + MGDExerciseActivity.memoryInfo.availMem);
+        //Log.e("memory free", "" + MGDExerciseActivity.memoryInfo.availMem);
 
         /*Vector3 screenTouchPosition = new Vector3( screenWidth/2-1, screenHeight/2-1, 0 );
         Vector3 worldTouchPosition = camera.unproject(screenTouchPosition, 1);
@@ -113,12 +113,14 @@ public class MGDExerciseGame extends Game{
             if(fadenkreuz.getShape().intersects(gameObjectList.get(i).getShape(), gameObjectList.get(i).getOrbit())){
                 //Log.e(TAG, "collsion detected !!!!!");
                 MGDExerciseActivity.setCollision(true);
-                //if(MGDExerciseActivity.noise_deteced == true){
-                    Log.e(TAG, "noise deteced und abgeschossen");
+                if(MGDExerciseActivity.noise_deteced == true && gameObjectList.get(i).destroyed == false){
+                    //Log.e(TAG, "noise deteced und abgeschossen");
                     gameObjectList.get(i).setDestroyed();
-                //}
+                    gameState.setCurrent_score(gameState.getCurrent_score()+gameObjectList.get(i).points);
+                    Log.e("aktueller score:", ""+gameState.getCurrent_score());
+                }
             }else{
-                gameObjectList.get(i).setModelTexture("box.png");
+                //gameObjectList.get(i).setModelTexture("box.png");
                 MGDExerciseActivity.setCollision(false);
             }
         }

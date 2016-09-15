@@ -8,6 +8,7 @@ public class GameState {
     public int gameObject_amount;
     public int gameObject_destroyed_counter;
     public int level;
+    public float current_score;
 
     public GameState() {
     }
@@ -26,5 +27,13 @@ public class GameState {
 
     public void setGameObject_destroyed_counter(int gameObject_destroyed_counter) {
         this.gameObject_destroyed_counter = gameObject_destroyed_counter;
+    }
+
+    public float getCurrent_score() {
+        return current_score;
+    }
+
+    public void setCurrent_score(float current_score) {
+        this.current_score = current_score;
     }
 }
