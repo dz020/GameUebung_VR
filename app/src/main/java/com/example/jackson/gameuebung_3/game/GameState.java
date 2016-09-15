@@ -9,6 +9,7 @@ public class GameState {
     public int gameObject_destroyed_counter;
     public int level;
     public float current_score;
+    public boolean game_over = false;
 
     public GameState() {
     }
@@ -35,5 +36,13 @@ public class GameState {
 
     public void setCurrent_score(float current_score) {
         this.current_score = current_score;
+    }
+
+    public boolean isGame_over() {
+        return game_over;
+    }
+
+    public void setGame_over(boolean game_over) {
+        this.game_over = game_over;
     }
 }

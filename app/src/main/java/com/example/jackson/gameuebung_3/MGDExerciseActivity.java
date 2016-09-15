@@ -26,6 +26,7 @@ import android.view.Window;
 import android.view.WindowManager;
 
 import com.example.jackson.gameuebung_3.audio.SoundMeter;
+import com.example.jackson.gameuebung_3.game.MGDExerciseGame;
 import com.google.vrtoolkit.cardboard.CardboardActivity;
 
 
@@ -198,6 +199,7 @@ public class MGDExerciseActivity extends CardboardActivity {
             }
             else{
                 stop();
+                MGDExerciseGame.gameState.setGame_over(true);
             }
         }
 

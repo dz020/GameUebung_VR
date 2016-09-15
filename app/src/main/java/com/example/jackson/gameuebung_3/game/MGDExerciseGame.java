@@ -22,7 +22,7 @@ public class MGDExerciseGame extends Game{
 
     private Camera camera;
     public static LinkedList<GameObject> gameObjectList = new LinkedList<>();
-    private GameState gameState;
+    public static GameState gameState;
     private Renderer renderer;
     public static Context context;
     private Vector3 forwardVector = new Vector3();
@@ -109,69 +109,82 @@ public class MGDExerciseGame extends Game{
         Matrix4x4 fadenkreuzWorldMatrix = Matrix4x4.multiply(headView.getInverse(), Matrix4x4.createTranslation(-0.5f, 0.5f, -8f));
         fadenkreuz.setPosition_in_world(fadenkreuzWorldMatrix);
 
-        for(int i=0; i<gameObjectList.size(); i++){
-            if(fadenkreuz.getShape().intersects(gameObjectList.get(i).getShape(), gameObjectList.get(i).getOrbit())){
-                //Log.e(TAG, "collsion detected !!!!!");
-                MGDExerciseActivity.setCollision(true);
-                if(MGDExerciseActivity.noise_deteced == true && gameObjectList.get(i).destroyed == false){
-                    //Log.e(TAG, "noise deteced und abgeschossen");
-                    gameObjectList.get(i).setDestroyed();
-                    gameState.setCurrent_score(gameState.getCurrent_score()+gameObjectList.get(i).points);
-                    Log.e("aktueller score:", ""+gameState.getCurrent_score());
+        if(gameState.game_over == false) {
+
+            for (int i = 0; i < gameObjectList.size(); i++) {
+                if (fadenkreuz.getShape().intersects(gameObjectList.get(i).getShape(), gameObjectList.get(i).getOrbit())) {
+                    //Log.e(TAG, "collsion detected !!!!!");
+                    MGDExerciseActivity.setCollision(true);
+                    if (MGDExerciseActivity.noise_deteced == true && gameObjectList.get(i).destroyed == false) {
+                        //Log.e(TAG, "noise deteced und abgeschossen");
+                        gameObjectList.get(i).setDestroyed();
+                        gameState.setCurrent_score(gameState.getCurrent_score() + gameObjectList.get(i).points);
+                        Log.e("aktueller score:", "" + gameState.getCurrent_score());
+                    }
+                } else {
+                    //gameObjectList.get(i).setModelTexture("box.png");
+                    MGDExerciseActivity.setCollision(false);
                 }
-            }else{
-                //gameObjectList.get(i).setModelTexture("box.png");
-                MGDExerciseActivity.setCollision(false);
+            }
+        }else{
+            menu_btn.setModelTexture("highscore.png");
+            if(  fadenkreuz.getShape().intersects(menu_btn.getShape(), 0.5f )){
+                Log.e(TAG, "menu button kollision");
+                menu_btn.setModelTexture("highscore_hovered.png");
             }
         }
-
-        //menu_btn.setModelTexture("highscore.png");
-        //if(fadenkreuz.getShape().intersects(menu_btn.getShape())){
-            //Log.e(TAG, "menu button kollision");
-          //  menu_btn.setModelTexture("highscore_hovered.png");
-        //}
     }
 
     int i = 0;
     @Override
     public void draw(float deltaSeconds) {
         graphicsDevice.setCamera(this.camera);
-        //graphicsDevice.clear(1.0f, 0.5f, 0.0f, 1.0f, 1.0f); //hintergrund farbe ändern
-        GLES20.glClearDepthf(1.0f);
-        GLES20.glClear(GLES20.GL_DEPTH_BUFFER_BIT);
+        if(gameState.game_over == false){
+            //graphicsDevice.clear(1.0f, 0.5f, 0.0f, 1.0f, 1.0f); //hintergrund farbe ändern
+            GLES20.glClearDepthf(1.0f);
+            GLES20.glClear(GLES20.GL_DEPTH_BUFFER_BIT);
 
-        for(int i=0; i< gameObjectList.size(); i++){
+            for(int i=0; i< gameObjectList.size(); i++){
 //        for(int i=0; i< 5; i++){
-            GameObject gameObject = gameObjectList.get(i);
-            //if(gameObject.destroyed == false){
+                GameObject gameObject = gameObjectList.get(i);
+                //if(gameObject.destroyed == false){
                 gameObject.getGameObjectPositionInWorldMatrix().rotateY(1f);
                 renderer.drawMesh(gameObject.getModelMesh(), gameObject.getModelMaterial(), gameObject.getGameObjectPositionInWorldMatrix());
                 renderer.drawMesh(gameObject.shape.getMesh(), gameObject.shape.getMaterial(), gameObject.getGameObjectPositionInWorldMatrix());
-            //}
-        }
+                //}
+            }
 
 //        gameObjectList.get(UtilityMethods.gameObjectItertor).getGameObjectPositionInWorldMatrix().rotateY(1f);
 
-  //      renderer.drawMesh(gameObjectList.get(UtilityMethods.gameObjectItertor).getModelMesh(),
-    //            gameObjectList.get(UtilityMethods.gameObjectItertor).getModelMaterial(),
-      //          gameObjectList.get(UtilityMethods.gameObjectItertor).getGameObjectPositionInWorldMatrix());
+            //      renderer.drawMesh(gameObjectList.get(UtilityMethods.gameObjectItertor).getModelMesh(),
+            //            gameObjectList.get(UtilityMethods.gameObjectItertor).getModelMaterial(),
+            //          gameObjectList.get(UtilityMethods.gameObjectItertor).getGameObjectPositionInWorldMatrix());
 
 
 
 
 
-        renderer.drawMesh(fadenkreuz.getModelMesh(),
-                          fadenkreuz.getModelMaterial(),
-                          fadenkreuz.getGameObjectPositionInWorldMatrix());
+            renderer.drawMesh(fadenkreuz.getModelMesh(),
+                    fadenkreuz.getModelMaterial(),
+                    fadenkreuz.getGameObjectPositionInWorldMatrix());
 
 //        renderer.drawMesh(fadenkreuz.shape.getMesh(), fadenkreuz.shape.getMaterial(), fadenkreuz.getGameObjectPositionInWorldMatrix());
 
-        //renderer.drawMesh(menu_bg.getModelMesh(), menu_bg.getModelMaterial(), menu_bg.getGameObjectPositionInWorldMatrix());
+            //renderer.drawMesh(menu_bg.getModelMesh(), menu_bg.getModelMaterial(), menu_bg.getGameObjectPositionInWorldMatrix());
 
-        //renderer.drawMesh(menu_btn.getModelMesh(), menu_btn.getModelMaterial(), menu_btn.getGameObjectPositionInWorldMatrix());
-        //Log.e(TAG, "draw aufruf: " + i);
-        i++;
-        //Log.e("tag", "screen width, height: " +Integer.toString(getScreenWidth())+" , "+Integer.toString(getScreenHeight()) );
+            //renderer.drawMesh(menu_btn.getModelMesh(), menu_btn.getModelMaterial(), menu_btn.getGameObjectPositionInWorldMatrix());
+            //Log.e(TAG, "draw aufruf: " + i);
+            i++;
+            //Log.e("tag", "screen width, height: " +Integer.toString(getScreenWidth())+" , "+Integer.toString(getScreenHeight()) );
+        }
+        else{
+            graphicsDevice.clear(1.0f, 0.5f, 0.0f, 1.0f, 1.0f); //hintergrund farbe ändern
+            renderer.drawMesh(menu_bg.getModelMesh(), menu_bg.getModelMaterial(), menu_bg.getGameObjectPositionInWorldMatrix());
+            renderer.drawMesh(menu_btn.getModelMesh(), menu_btn.getModelMaterial(), menu_btn.getGameObjectPositionInWorldMatrix());
+            renderer.drawMesh(fadenkreuz.getModelMesh(),
+                    fadenkreuz.getModelMaterial(),
+                    fadenkreuz.getGameObjectPositionInWorldMatrix());
+        }
     }
 
     @Override
