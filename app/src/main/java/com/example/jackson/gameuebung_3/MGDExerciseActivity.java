@@ -27,7 +27,6 @@ import android.view.WindowManager;
 
 import com.example.jackson.gameuebung_3.audio.SoundMeter;
 import com.example.jackson.gameuebung_3.game.MGDExerciseGame;
-import com.example.jackson.gameuebung_3.game.UtilityMethods;
 import com.google.vrtoolkit.cardboard.CardboardActivity;
 
 
@@ -37,9 +36,9 @@ public class MGDExerciseActivity extends CardboardActivity {
     private MGDExerciseView view; //unsere view
     static CardboardOverlayView mOverlayView;
     private MediaPlayer mp;
-    private SoundMeter mSensor;
-    private int mThreshold = 5;
-    private Handler mHandler = new Handler();
+    private static SoundMeter mSensor;
+    private static int mThreshold = 5;
+    private static Handler mHandler = new Handler();
     private static final int POLL_INTERVAL = 500; //ist auch die verzögerung bis laser sound erklingt
     private static int GAME_DURATION = 30000; // 30 sek
     private static SoundPool soundPool;
@@ -134,9 +133,12 @@ public class MGDExerciseActivity extends CardboardActivity {
         }
         call_counter++;
         mSensor.start();
+        Log.e("onresume", "end");
+    }
+
+    public static void startPollTask(){
         Thread mythread = new Thread(mPollTask);
         mythread.start();
-        Log.e("onresume", "end");
     }
 
     public static void showToast(){
@@ -159,7 +161,7 @@ public class MGDExerciseActivity extends CardboardActivity {
     }
 
     public static boolean noise_deteced;
-    public void callForHelp(double amplitude) {
+    public static void callForHelp(double amplitude) {
         Log.e("activity", "callForHelp "+ amplitude);
         // Show alert when noise thersold crossed
         //Toast.makeText(getApplicationContext(), "Noise Thersold Crossed, do here your stuff.", Toast.LENGTH_LONG).show();
@@ -173,8 +175,10 @@ public class MGDExerciseActivity extends CardboardActivity {
         }
     }
 
+    public static boolean gameIsReady = false;
+
     // Create runnable thread to Monitor Voice
-    final Runnable mPollTask = new Runnable() {
+    static final Runnable mPollTask = new Runnable() {
 
         private volatile boolean mIsStopped = false;
         private boolean increaseTimeAllowed = false;
@@ -197,6 +201,7 @@ public class MGDExerciseActivity extends CardboardActivity {
                 GAME_DURATION = GAME_DURATION - POLL_INTERVAL;
                 if(increaseTimeAllowed == false){
                     increaseTimeAllowed = true;
+                    MGDExerciseGame.timeText.setText(""+(GAME_DURATION/1000));
                     Log.e("übrige zeit", ""+(GAME_DURATION/1000));
                 }else{
                     increaseTimeAllowed = false;
@@ -207,10 +212,10 @@ public class MGDExerciseActivity extends CardboardActivity {
                 MGDExerciseGame.gameState.setGame_over(true);
 
                 int current_score = (int) MGDExerciseGame.gameState.current_score;
-                UtilityMethods.saveCurrentScore(getPreferences(MODE_PRIVATE), current_score);
-                int[] highscore_array = UtilityMethods.loadAndSortHighScore(getPreferences(MODE_PRIVATE));
-                int pos = UtilityMethods.checkHighScorePosition(highscore_array, current_score);
-                Log.e("DEINE HIGHSCORE POSI: ", ""+pos);
+                //UtilityMethods.saveCurrentScore(getPreferences(MODE_PRIVATE), current_score);
+                //int[] highscore_array = UtilityMethods.loadAndSortHighScore(getPreferences(MODE_PRIVATE));
+                //int pos = UtilityMethods.checkHighScorePosition(highscore_array, current_score);
+                //Log.e("DEINE HIGHSCORE POSI: ", ""+pos);
 
             }
         }

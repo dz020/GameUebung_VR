@@ -31,8 +31,10 @@ public class MGDExerciseGame extends Game{
     private Vector3 forwardVector = new Vector3();
     private Matrix4x4 headView;
 
-    TextBuffer textTitle;
-    Matrix4x4 textMatrix;
+    TextBuffer scoreText;
+    Matrix4x4 scoreMatrix;
+    public static TextBuffer timeText;
+    Matrix4x4 timeMatrix;
 
     public MGDExerciseGame(Context context) {
         super(context);
@@ -83,13 +85,17 @@ public class MGDExerciseGame extends Game{
         gameObjectList.add(munitions_box);
 
         Typeface myTypeface = Typeface.createFromAsset(context.getAssets(), "fonts/rubik.ttf");
-        SpriteFont spriteFont = new SpriteFont(graphicsDevice, myTypeface, 88f);
-        textTitle = graphicsDevice.createTextBuffer(spriteFont, 16);
-        textTitle.setText("Score: 1950");
+        SpriteFont spriteFont = new SpriteFont(graphicsDevice, myTypeface, 44f);
+        scoreText = graphicsDevice.createTextBuffer(spriteFont, 16);
+        scoreText.setText("Score: 0");
 
-        textMatrix = new Matrix4x4();
+        timeText = graphicsDevice.createTextBuffer(spriteFont, 16);
+        timeText.setText("2:00");
 
         renderer = new Renderer(graphicsDevice);
+
+        MGDExerciseActivity.startPollTask();
+        MGDExerciseActivity.gameIsReady = true;
         //hier könnte dann gamelevel inkrementiert werden und mit gameobject amount multipliziert werden
     }
 
@@ -112,11 +118,19 @@ public class MGDExerciseGame extends Game{
         Matrix4x4 fadenkreuzWorldMatrix = Matrix4x4.multiply(headView.getInverse(), Matrix4x4.createTranslation(-0.5f, 0.5f, -8f));
         fadenkreuz.setPosition_in_world(fadenkreuzWorldMatrix);
 
-        Matrix4x4 versuch = new Matrix4x4(fadenkreuzWorldMatrix);
-        versuch.rotateX(0);
-        versuch.scale(0.008f);
-        versuch.translate(0f,500f,0f);
-        textMatrix = versuch;
+        Matrix4x4 fadenkreuzMatrixCopyForScoreMatrix = new Matrix4x4(fadenkreuzWorldMatrix);
+        fadenkreuzMatrixCopyForScoreMatrix.rotateX(0);
+        fadenkreuzMatrixCopyForScoreMatrix.scale(0.008f);
+        fadenkreuzMatrixCopyForScoreMatrix.translate(-280f, 100f, 0f);
+        scoreMatrix = fadenkreuzMatrixCopyForScoreMatrix;
+
+        Matrix4x4 fadenkreuzMatrixCopyForTimeMatrix = new Matrix4x4(fadenkreuzWorldMatrix);
+        fadenkreuzMatrixCopyForTimeMatrix.rotateX(0);
+        fadenkreuzMatrixCopyForTimeMatrix.scale(0.008f);
+        fadenkreuzMatrixCopyForTimeMatrix.translate(50f, 100f, 0f);
+        timeMatrix = fadenkreuzMatrixCopyForTimeMatrix;
+
+
 
 
         if(gameState.game_over == false) {
@@ -135,6 +149,7 @@ public class MGDExerciseGame extends Game{
                             }
                         }else{
                             gameState.setCurrent_score(gameState.getCurrent_score() + gameObjectList.get(i).points);
+                            scoreText.setText("Score: "+(int)gameState.getCurrent_score());
                             Log.e("aktueller score:", "" + gameState.getCurrent_score());
                         }
                     }
@@ -156,8 +171,6 @@ public class MGDExerciseGame extends Game{
     public void draw(float deltaSeconds) {
         graphicsDevice.setCamera(this.camera);
 
-        renderer.drawText(textTitle, textMatrix);
-
         if(gameState.game_over == false){
             GLES20.glClearDepthf(1.0f);
             GLES20.glClear(GLES20.GL_DEPTH_BUFFER_BIT);
@@ -174,6 +187,8 @@ public class MGDExerciseGame extends Game{
 //            renderer.drawMesh(munitions_box.getModelMesh(), munitions_box.getModelMaterial(), munitions_box.getGameObjectPositionInWorldMatrix());
 
             renderer.drawMesh(fadenkreuz.getModelMesh(), fadenkreuz.getModelMaterial(), fadenkreuz.getGameObjectPositionInWorldMatrix());
+            renderer.drawText(scoreText, scoreMatrix);
+            renderer.drawText(timeText, timeMatrix);
         }
         else{
             graphicsDevice.clear(1.0f, 0.5f, 0.0f, 1.0f, 1.0f); //hintergrund farbe ändern
@@ -217,5 +232,9 @@ public class MGDExerciseGame extends Game{
         forwardVector.setX(headView.m[2]);
         forwardVector.setY(headView.m[6]);
         forwardVector.setZ(headView.m[10]);
+    }
+
+    public static void setTimeText(String text){
+        timeText.setText(text);
     }
 }
