@@ -23,7 +23,7 @@ public class Renderer {
 
         VertexBuffer vertexBuffer = mesh.getVertexBuffer();
         graphicsDevice.bindVertexBuffer(vertexBuffer);
-        graphicsDevice.draw(mesh.getMode(), vertexBuffer.getVertex_amount());
+        graphicsDevice.draw(mesh.getMode(), vertexBuffer.getNumVertices());
         graphicsDevice.unbindVertexBuffer(vertexBuffer);
         graphicsDevice.unbindTexture();
     }
@@ -46,5 +46,9 @@ public class Renderer {
         graphicsDevice.setDepthTest(material.getDepthTestFunction());
         graphicsDevice.setDepthWrite(material.getDepthWrite());
         graphicsDevice.setAlphaTest(material.getAlphaTestFunction(), material.getAlphaTestValue());
+    }
+
+    public void drawText(TextBuffer textBuffer, Matrix4x4 world) {
+        drawMesh(textBuffer.getMesh(), textBuffer.getSpriteFont().getMaterial(), world);
     }
 }

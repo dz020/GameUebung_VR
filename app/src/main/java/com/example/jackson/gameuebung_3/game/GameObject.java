@@ -55,7 +55,6 @@ public class GameObject{
 
     public Matrix4x4 getGameObjectPositionInWorldMatrix() {
         return this.position_in_world;
-
     }
 
     public void setPosition_in_world(Matrix4x4 position_in_world) {

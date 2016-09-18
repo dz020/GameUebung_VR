@@ -96,6 +96,7 @@ public class MGDExerciseActivity extends CardboardActivity {
         beepSound = soundPool.load(getApplicationContext(), R.raw.beep, 1);
         finalBeepSound = soundPool.load(getApplicationContext(), R.raw.final_beep, 2);
         coinSound = soundPool.load(getApplicationContext(), R.raw.coin, 4);
+
         Log.e("oncreate", "end");
     }
 

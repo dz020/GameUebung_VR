@@ -1,12 +1,15 @@
 package com.example.jackson.gameuebung_3.game;
 
 import android.content.Context;
+import android.graphics.Typeface;
 import android.opengl.GLES20;
 import android.util.Log;
 
 import com.example.jackson.gameuebung_3.MGDExerciseActivity;
 import com.example.jackson.gameuebung_3.graphics.Camera;
 import com.example.jackson.gameuebung_3.graphics.Renderer;
+import com.example.jackson.gameuebung_3.graphics.SpriteFont;
+import com.example.jackson.gameuebung_3.graphics.TextBuffer;
 import com.example.jackson.gameuebung_3.math.Matrix4x4;
 import com.example.jackson.gameuebung_3.math.Vector3;
 
@@ -27,6 +30,9 @@ public class MGDExerciseGame extends Game{
     public static Context context;
     private Vector3 forwardVector = new Vector3();
     private Matrix4x4 headView;
+
+    TextBuffer textTitle;
+    Matrix4x4 textMatrix;
 
     public MGDExerciseGame(Context context) {
         super(context);
@@ -76,6 +82,13 @@ public class MGDExerciseGame extends Game{
         munitions_box.setType("munitions_box");
         gameObjectList.add(munitions_box);
 
+        Typeface myTypeface = Typeface.createFromAsset(context.getAssets(), "fonts/rubik.ttf");
+        SpriteFont spriteFont = new SpriteFont(graphicsDevice, myTypeface, 88f);
+        textTitle = graphicsDevice.createTextBuffer(spriteFont, 16);
+        textTitle.setText("Score: 1950");
+
+        textMatrix = new Matrix4x4();
+
         renderer = new Renderer(graphicsDevice);
         //hier könnte dann gamelevel inkrementiert werden und mit gameobject amount multipliziert werden
     }
@@ -98,6 +111,13 @@ public class MGDExerciseGame extends Game{
         */
         Matrix4x4 fadenkreuzWorldMatrix = Matrix4x4.multiply(headView.getInverse(), Matrix4x4.createTranslation(-0.5f, 0.5f, -8f));
         fadenkreuz.setPosition_in_world(fadenkreuzWorldMatrix);
+
+        Matrix4x4 versuch = new Matrix4x4(fadenkreuzWorldMatrix);
+        versuch.rotateX(0);
+        versuch.scale(0.008f);
+        versuch.translate(0f,500f,0f);
+        textMatrix = versuch;
+
 
         if(gameState.game_over == false) {
 
@@ -135,6 +155,9 @@ public class MGDExerciseGame extends Game{
     @Override
     public void draw(float deltaSeconds) {
         graphicsDevice.setCamera(this.camera);
+
+        renderer.drawText(textTitle, textMatrix);
+
         if(gameState.game_over == false){
             GLES20.glClearDepthf(1.0f);
             GLES20.glClear(GLES20.GL_DEPTH_BUFFER_BIT);

@@ -3,6 +3,7 @@ package com.example.jackson.gameuebung_3.graphics;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
+import android.graphics.Typeface;
 import android.opengl.GLES20;
 import android.opengl.GLUtils;
 import android.util.Log;
@@ -98,9 +99,9 @@ public class GraphicsDevice {
     }
 
     public void bindVertexBuffer(VertexBuffer vertexBuffer){
-        ByteBuffer buffer = vertexBuffer.getByteBuffer();
+        ByteBuffer buffer = vertexBuffer.getBuffer();
 
-        for (VertexElement element : vertexBuffer.getVertexElements()) {
+        for (VertexElement element : vertexBuffer.getElements()) {
             int offset = element.getOffset();
             int stride = element.getStride();
             int type = element.getType();
@@ -139,7 +140,7 @@ public class GraphicsDevice {
     }
 
     public void unbindVertexBuffer(VertexBuffer vertexBuffer){
-        for (VertexElement element : vertexBuffer.getVertexElements()) {
+        for (VertexElement element : vertexBuffer.getElements()) {
             switch (element.getSemantic()) {
                 case VERTEX_ELEMENT_POSITION:
                     //GLES20.glDisableClientState(GLES20.GL_VERTEX_ARRAY);
@@ -190,7 +191,7 @@ public class GraphicsDevice {
      */
     Bitmap bitmap;
     public Texture createTexture(InputStream stream) {
-        bitmap = BitmapFactory.decodeStream(stream);
+        this.bitmap = BitmapFactory.decodeStream(stream);
 
         int level = 0;
         int width = bitmap.getWidth();
@@ -238,7 +239,44 @@ public class GraphicsDevice {
         GLES20.glDisable(GLES20.GL_TEXTURE_2D);
     }
 
+    public Texture createTexture(Bitmap bitmap) {
+        this.bitmap = bitmap;
 
+        int level = 0;
+        int width = bitmap.getWidth();
+        int height = bitmap.getHeight();
+
+        // Texture Handle erstellen
+        int[] handles = new int[1];
+        GLES20.glGenTextures(1, handles, 0);
+
+        // Texture binden
+        int handle = handles[0];
+        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, handle);
+
+        Texture texture = new Texture(handle, width, height);
+
+        // Bitmap an der Y-Achse spiegeln
+        Matrix matrix = new Matrix();
+        matrix.setScale(1, -1);
+        bitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, false);
+
+        // MipMaps erzeugen und laden
+        while (width >= 1 && height >= 1) {
+            GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, level, bitmap, 0);
+
+            if(height == 1 || width == 1)
+                break;
+
+            level++;
+            height /= 2;
+            width /= 2;
+
+            bitmap = Bitmap.createScaledBitmap(bitmap, width, height, true);
+        }
+        bitmap.recycle();
+        return texture;
+    }
 
 
 
@@ -396,6 +434,14 @@ public class GraphicsDevice {
         }
 
         return shader;
+    }
+
+    public SpriteFont createSpriteFont(Typeface typeface, float size) {
+        return new SpriteFont(this, typeface, size);
+    }
+
+    public TextBuffer createTextBuffer(SpriteFont spriteFont, int capacity) {
+        return new TextBuffer(this, spriteFont, capacity);
     }
 }
 

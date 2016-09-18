@@ -135,12 +135,12 @@ public class Mesh {
         int elementOffset = 0;
         VertexElement[] elements = new VertexElement[numElements];
         if (hasPositionData) {
-            elements[elementIndex] = new VertexElement(elementOffset, vertexSize, 3, VertexElement.VertexSemantic.VERTEX_ELEMENT_POSITION);
+            elements[elementIndex] = new VertexElement(elementOffset, vertexSize, GL10.GL_FLOAT, 3, VertexElement.VertexSemantic.VERTEX_ELEMENT_POSITION);
             elementOffset += 12;
             elementIndex++;
         }
         if (hasTexCoordData) {
-            elements[elementIndex] = new VertexElement(elementOffset, vertexSize, 2, VertexElement.VertexSemantic.VERTEX_ELEMENT_TEXCOORD);
+            elements[elementIndex] = new VertexElement(elementOffset, vertexSize, GL10.GL_FLOAT, 2, VertexElement.VertexSemantic.VERTEX_ELEMENT_TEXCOORD);
             elementOffset += 8;
             elementIndex++;
         }
@@ -167,9 +167,9 @@ public class Mesh {
         buffer.position(0);
 
         VertexBuffer vertexBuffer = new VertexBuffer();
-        vertexBuffer.setVertexElements(elements);
-        vertexBuffer.setByteBuffer(buffer);
-        vertexBuffer.setVertex_amount(indexGroups.size());
+        vertexBuffer.setElements(elements);
+        vertexBuffer.setBuffer(buffer);
+        vertexBuffer.setNumVertices(indexGroups.size());
 
 
         Mesh mesh = new Mesh();

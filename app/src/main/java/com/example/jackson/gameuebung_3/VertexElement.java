@@ -5,12 +5,12 @@ package com.example.jackson.gameuebung_3;
  */
 public class VertexElement {
 
-    public enum VertexSemantic{
+    public enum VertexSemantic {
         VERTEX_ELEMENT_NONE,
         VERTEX_ELEMENT_POSITION,
         VERTEX_ELEMENT_COLOR,
         VERTEX_ELEMENT_TEXCOORD
-    }
+    };
 
     private int offset;
     private int stride;
@@ -18,10 +18,10 @@ public class VertexElement {
     private int count;
     private VertexSemantic semantic;
 
-    public VertexElement(int offset, int stride, int count, VertexSemantic semantic){
+    public VertexElement(int offset, int stride, int type, int count, VertexSemantic semantic) {
         this.offset = offset;
         this.stride = stride;
-        this.type = javax.microedition.khronos.opengles.GL10.GL_FLOAT;
+        this.type = type;
         this.count = count;
         this.semantic = semantic;
     }
@@ -42,7 +42,8 @@ public class VertexElement {
         return count;
     }
 
-    public VertexSemantic getSemantic(){
+    public VertexSemantic getSemantic() {
         return semantic;
     }
+
 }

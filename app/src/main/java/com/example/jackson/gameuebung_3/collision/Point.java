@@ -45,4 +45,12 @@ public class Point implements Shape2D {
 		this.position.v[1] = position.v[1];
 	}
 
+	public float getX(){
+		return position.getX();
+	}
+
+	public float getY(){
+		return position.getY();
+	}
+
 }
