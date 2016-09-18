@@ -27,6 +27,7 @@ import android.view.WindowManager;
 
 import com.example.jackson.gameuebung_3.audio.SoundMeter;
 import com.example.jackson.gameuebung_3.game.MGDExerciseGame;
+import com.example.jackson.gameuebung_3.game.UtilityMethods;
 import com.google.vrtoolkit.cardboard.CardboardActivity;
 
 
@@ -48,6 +49,7 @@ public class MGDExerciseActivity extends CardboardActivity {
     private static int coinSound;
     public static ActivityManager activityManager;
     public static ActivityManager.MemoryInfo memoryInfo;
+    public static int max_highscore_entries = 5;
 
 
     public static SoundPool getSoundPool() {
@@ -202,6 +204,13 @@ public class MGDExerciseActivity extends CardboardActivity {
             else{
                 stop();
                 MGDExerciseGame.gameState.setGame_over(true);
+
+                int current_score = (int) MGDExerciseGame.gameState.current_score;
+                UtilityMethods.saveCurrentScore(getPreferences(MODE_PRIVATE), current_score);
+                int[] highscore_array = UtilityMethods.loadAndSortHighScore(getPreferences(MODE_PRIVATE));
+                int pos = UtilityMethods.checkHighScorePosition(highscore_array, current_score);
+                Log.e("DEINE HIGHSCORE POSI: ", ""+pos);
+
             }
         }
 
