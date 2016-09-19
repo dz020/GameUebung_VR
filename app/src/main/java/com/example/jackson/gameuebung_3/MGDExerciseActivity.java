@@ -40,7 +40,7 @@ public class MGDExerciseActivity extends CardboardActivity {
     private static int mThreshold = 5;
     private static Handler mHandler = new Handler();
     private static final int POLL_INTERVAL = 500; //ist auch die verzögerung bis laser sound erklingt
-    private static int GAME_DURATION = 620000; // 120 sek bzw 2 min
+    private static int GAME_DURATION = 125000; // 120 sek bzw 2 min
     private static SoundPool soundPool;
     private static int laserSound;
     private static int beepSound;
@@ -210,7 +210,13 @@ public class MGDExerciseActivity extends CardboardActivity {
                 GAME_DURATION = GAME_DURATION - POLL_INTERVAL;
                 if(increaseTimeAllowed == false){
                     increaseTimeAllowed = true;
-                    MGDExerciseGame.timeText.setText(""+(GAME_DURATION/1000));
+                    int sec = (GAME_DURATION/1000)%60;
+                    int min = (GAME_DURATION/1000)/60;
+                    if( 0 <= sec && sec < 10 ){
+                        MGDExerciseGame.timeText.setText(""+min+":0"+sec);
+                    }else{
+                        MGDExerciseGame.timeText.setText(""+min+":"+sec);
+                    }
                     //Log.e("übrige zeit", ""+(GAME_DURATION/1000));
                 }else{
                     increaseTimeAllowed = false;

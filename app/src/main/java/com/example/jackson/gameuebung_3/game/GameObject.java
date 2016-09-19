@@ -104,7 +104,7 @@ public class GameObject{
         //Log.e("aus schleife: ", list.get(6)); //totalpoints
         //Log.e("aus schleife: ", list.get(7)); //currently active
         this.size = Float.parseFloat(list.get(0));
-        position_in_world.scale(size);
+        position_in_world.scale((size)); //weil boxen doch irgendwie zu groß in VR
         this.orbit = Float.parseFloat(list.get(1));
         position_in_world.translate(0f, (orbit/size), 0f); //orbit/size damit optische position im raum immer gleich bleibt
         this.slot = Float.parseFloat(list.get(2));

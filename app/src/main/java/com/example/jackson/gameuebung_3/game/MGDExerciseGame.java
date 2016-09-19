@@ -6,10 +6,14 @@ import android.opengl.GLES20;
 import android.util.Log;
 
 import com.example.jackson.gameuebung_3.MGDExerciseActivity;
+import com.example.jackson.gameuebung_3.Mesh;
 import com.example.jackson.gameuebung_3.graphics.Camera;
+import com.example.jackson.gameuebung_3.graphics.CompareFunction;
+import com.example.jackson.gameuebung_3.graphics.Material;
 import com.example.jackson.gameuebung_3.graphics.Renderer;
 import com.example.jackson.gameuebung_3.graphics.SpriteFont;
 import com.example.jackson.gameuebung_3.graphics.TextBuffer;
+import com.example.jackson.gameuebung_3.graphics.Texture;
 import com.example.jackson.gameuebung_3.math.Matrix4x4;
 import com.example.jackson.gameuebung_3.math.Vector3;
 
@@ -57,6 +61,11 @@ public class MGDExerciseGame extends Game{
     GameObject munitions_box;
     Matrix4x4 fadenkreuzMatrix;
 
+    Mesh skyMesh;
+    Texture skyTexture;
+    Material skyMaterial;
+    Matrix4x4 skyMatrix;
+
     @Override
     public void initialize() {
         gameState = new GameState();
@@ -69,10 +78,10 @@ public class MGDExerciseGame extends Game{
 
         try {
             //list anlegen mit allen möglichen gameobject positionen
-            List<List<String>> list = UtilityMethods.getListFromCSV("final_object_list.csv");
+            List<List<String>> list = UtilityMethods.getListFromCSV("really_final_object_list.csv");
             for(int i = 0; i< list.size(); i++){
-                if(i == 2){
-                    munitions_box = new GameObject("box.obj", "munition.png");
+                if(i == 7){
+                    munitions_box = new GameObject("box.obj", "munition_texture.png");
                     munitions_box.addData(list.get(i));
                 }else{
                     GameObject gameObject = new GameObject("box.obj", "box.png");
@@ -85,6 +94,14 @@ public class MGDExerciseGame extends Game{
         }
 
         gameState.setGameObject_amount(1);
+
+        skyMesh = UtilityMethods.loadMesh("sphere.obj");
+        skyTexture = UtilityMethods.loadTexture("spacetexture.jpg");
+        skyMaterial = new Material();
+        skyMaterial.setTexture(skyTexture);
+        skyMaterial.setDepthTestFunction(CompareFunction.ALWAYS);
+        skyMatrix = new Matrix4x4();
+        skyMatrix.scale(100f);
 
         fadenkreuz = new GameObject("quad.obj", "fadenkreuz.png");
         fadenkreuz.makeShapeVisible("sphere.obj", "yellow.png");
@@ -180,7 +197,7 @@ public class MGDExerciseGame extends Game{
 
             int counter = 0;
             //gucken dass immer 3 boxen zum abschießen da sind
-            while(currently_visible_gameObjects.size() < 4){
+            while(currently_visible_gameObjects.size() < gameState.max_game_object_amount){
 
                 Random randomGenerator = new Random();
                 int index = randomGenerator.nextInt(unvisible_gameObjectList.size());
@@ -229,7 +246,7 @@ public class MGDExerciseGame extends Game{
                             }
                             Log.e("neue munition", " :"+gameState.current_ammo );
                             currently_visible_gameObjects.remove(i);
-                            munitions_box = new GameObject("box.obj", "munition.png");
+                            munitions_box = new GameObject("box.obj", "munition_texture.png");
                             munitions_box.setPosition_in_world(munitionsBoxMatrix);
                             munitions_box.setType("munitions_box");
                             currently_visible_gameObjects.add(munitions_box);
@@ -267,6 +284,8 @@ public class MGDExerciseGame extends Game{
 
         graphicsDevice.clear(1.0f, 0.5f, 0.0f, 1.0f, 1.0f); //hintergrund farbe ändern
 
+        renderer.drawMesh(skyMesh, skyMaterial, skyMatrix);
+
         if(gameState.game_over == false){
             GLES20.glClearDepthf(1.0f);
             GLES20.glClear(GLES20.GL_DEPTH_BUFFER_BIT);
@@ -282,7 +301,7 @@ public class MGDExerciseGame extends Game{
             }
             //Log.e("draw call", "es sollten gameobjects gezeichnet werden: "+currently_visible_gameObjects.size());
 
-            munitions_box.getGameObjectPositionInWorldMatrix().rotateY(0.3f);
+            munitions_box.getGameObjectPositionInWorldMatrix().rotateY(0.1f);
             renderer.drawMesh(munitions_box.getModelMesh(), munitions_box.getModelMaterial(), munitions_box.getGameObjectPositionInWorldMatrix());
 
             renderer.drawMesh(fadenkreuz.getModelMesh(), fadenkreuz.getModelMaterial(), fadenkreuz.getGameObjectPositionInWorldMatrix());
