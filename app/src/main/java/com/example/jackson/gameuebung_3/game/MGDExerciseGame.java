@@ -31,10 +31,16 @@ public class MGDExerciseGame extends Game{
     private Vector3 forwardVector = new Vector3();
     private Matrix4x4 headView;
 
-    TextBuffer scoreText;
+    public static TextBuffer scoreText;
     Matrix4x4 scoreMatrix;
+    TextBuffer scoreLabelText;
+    Matrix4x4 scoreLabelMatrix;
     public static TextBuffer timeText;
     Matrix4x4 timeMatrix;
+    TextBuffer timeLabelText;
+    Matrix4x4 timeLabelMatrix;
+    public static TextBuffer amorText;
+    Matrix4x4 amorMatrix;
 
     public MGDExerciseGame(Context context) {
         super(context);
@@ -87,10 +93,18 @@ public class MGDExerciseGame extends Game{
         Typeface myTypeface = Typeface.createFromAsset(context.getAssets(), "fonts/rubik.ttf");
         SpriteFont spriteFont = new SpriteFont(graphicsDevice, myTypeface, 44f);
         scoreText = graphicsDevice.createTextBuffer(spriteFont, 16);
-        scoreText.setText("Score: 0");
+        scoreText.setText("0");
+        scoreLabelText = graphicsDevice.createTextBuffer(spriteFont, 16);
+        scoreLabelText.setText("SCORE");
 
         timeText = graphicsDevice.createTextBuffer(spriteFont, 16);
-        timeText.setText("2:00");
+//        timeText.setText("2:00");
+        timeLabelText = graphicsDevice.createTextBuffer(spriteFont, 16);
+        timeLabelText.setText("TIME");
+
+        amorText = graphicsDevice.createTextBuffer(spriteFont, 16);
+        amorText.setText(" I I I I I I I I");
+        //amorText.setText(""+gameState.max_ammo);
 
         renderer = new Renderer(graphicsDevice);
 
@@ -116,21 +130,39 @@ public class MGDExerciseGame extends Game{
         fadenkreuz.setPosition_in_world(Matrix4x4.createTranslation(fadenkreuzPos.getX(), fadenkreuzPos.getY(), fadenkreuzPos.getZ()));
         */
         Matrix4x4 fadenkreuzWorldMatrix = Matrix4x4.multiply(headView.getInverse(), Matrix4x4.createTranslation(-0.5f, 0.5f, -8f));
-        fadenkreuz.setPosition_in_world(fadenkreuzWorldMatrix);
+        Matrix4x4 adjustToCenter = new Matrix4x4(fadenkreuzWorldMatrix);
+        adjustToCenter.translate(0.25f,-0.85f, 0f); //sehr angenehm fürs auge positioniert
+        fadenkreuz.setPosition_in_world(adjustToCenter);
 
-        Matrix4x4 fadenkreuzMatrixCopyForScoreMatrix = new Matrix4x4(fadenkreuzWorldMatrix);
-        fadenkreuzMatrixCopyForScoreMatrix.rotateX(0);
-        fadenkreuzMatrixCopyForScoreMatrix.scale(0.008f);
-        fadenkreuzMatrixCopyForScoreMatrix.translate(-280f, 100f, 0f);
-        scoreMatrix = fadenkreuzMatrixCopyForScoreMatrix;
+            Matrix4x4 fadenkreuzMatrixCopyForScoreLabelMatrix = new Matrix4x4(fadenkreuzWorldMatrix);
+            fadenkreuzMatrixCopyForScoreLabelMatrix.rotateX(0);
+            fadenkreuzMatrixCopyForScoreLabelMatrix.scale(0.0105f);
+            fadenkreuzMatrixCopyForScoreLabelMatrix.translate(-170f, 50f, 0f);
+            scoreLabelMatrix = fadenkreuzMatrixCopyForScoreLabelMatrix;
+
+            Matrix4x4 fadenkreuzMatrixCopyForScoreMatrix = new Matrix4x4(fadenkreuzWorldMatrix);
+            fadenkreuzMatrixCopyForScoreMatrix.rotateX(0);
+            fadenkreuzMatrixCopyForScoreMatrix.scale(0.0105f);
+            fadenkreuzMatrixCopyForScoreMatrix.translate(-170f, 7f, 0f);
+            scoreMatrix = fadenkreuzMatrixCopyForScoreMatrix;
+
+        Matrix4x4 fadenkreuzMatrixCopyForTimeLabelMatrix = new Matrix4x4(fadenkreuzWorldMatrix);
+        fadenkreuzMatrixCopyForTimeLabelMatrix.rotateX(0);
+        fadenkreuzMatrixCopyForTimeLabelMatrix.scale(0.0105f);
+        fadenkreuzMatrixCopyForTimeLabelMatrix.translate(50f, 50f, 0f);
+        timeLabelMatrix = fadenkreuzMatrixCopyForTimeLabelMatrix;
 
         Matrix4x4 fadenkreuzMatrixCopyForTimeMatrix = new Matrix4x4(fadenkreuzWorldMatrix);
         fadenkreuzMatrixCopyForTimeMatrix.rotateX(0);
-        fadenkreuzMatrixCopyForTimeMatrix.scale(0.008f);
-        fadenkreuzMatrixCopyForTimeMatrix.translate(50f, 100f, 0f);
+        fadenkreuzMatrixCopyForTimeMatrix.scale(0.0105f);
+        fadenkreuzMatrixCopyForTimeMatrix.translate(50f, 7f, 0f);
         timeMatrix = fadenkreuzMatrixCopyForTimeMatrix;
 
-
+            Matrix4x4 fadenkreuzMatrixCopyForAmorMatrix = new Matrix4x4(fadenkreuzWorldMatrix);
+            fadenkreuzMatrixCopyForAmorMatrix.rotateX(0);
+            fadenkreuzMatrixCopyForAmorMatrix.scale(0.02f);
+            fadenkreuzMatrixCopyForAmorMatrix.translate(-90f, -120f, 0f);
+            amorMatrix = fadenkreuzMatrixCopyForAmorMatrix;
 
 
         if(gameState.game_over == false) {
@@ -139,23 +171,34 @@ public class MGDExerciseGame extends Game{
                 if (fadenkreuz.getShape().intersects(gameObjectList.get(i).getShape(), gameObjectList.get(i).getOrbit())) {
                     //Log.e(TAG, "collsion detected !!!!!");
                     MGDExerciseActivity.setCollision(true);
-                    if (MGDExerciseActivity.noise_deteced == true && gameObjectList.get(i).destroyed == false) {
-                        //Log.e(TAG, "noise deteced und abgeschossen");
-                        gameObjectList.get(i).setDestroyed();
-                        if(gameObjectList.get(i).getType().equals("munitions_box")){
-                            gameState.current_ammo = gameState.current_ammo + gameState.increase_ammo; //aktuell um 3 erhöhen
-                            if(gameState.current_ammo > gameState.max_ammo){
-                                gameState.current_ammo = gameState.max_ammo;
+                    if (MGDExerciseActivity.noise_deteced == true) {
+
+                        if (gameObjectList.get(i).destroyed == false) {
+                            //Log.e(TAG, "noise deteced und abgeschossen");
+                            gameObjectList.get(i).setDestroyed();
+                            if (gameObjectList.get(i).getType().equals("munitions_box")) {
+                                gameState.current_ammo = gameState.current_ammo + gameState.increase_ammo; //aktuell um 3 erhöhen
+                                if (gameState.current_ammo > gameState.max_ammo) {
+                                    gameState.current_ammo = gameState.max_ammo;
+                                }
+                            } else {
+                                gameState.setCurrent_score(gameState.getCurrent_score() + gameObjectList.get(i).points);
+                                scoreText.setText("" + (int) gameState.getCurrent_score());
+                                Log.e("aktueller score:", "" + gameState.getCurrent_score());
                             }
-                        }else{
-                            gameState.setCurrent_score(gameState.getCurrent_score() + gameObjectList.get(i).points);
-                            scoreText.setText("Score: "+(int)gameState.getCurrent_score());
-                            Log.e("aktueller score:", "" + gameState.getCurrent_score());
                         }
+
+                        String amor = "";
+                        for (int ii = 0; ii < gameState.current_ammo; ii++) {
+                            amor += " I";
+                        }
+                        Log.e("amor II ", amor);
+                        amorText.setText(amor);
+
+                    } else {
+                        //gameObjectList.get(i).setModelTexture("box.png");
+                        MGDExerciseActivity.setCollision(false);
                     }
-                } else {
-                    //gameObjectList.get(i).setModelTexture("box.png");
-                    MGDExerciseActivity.setCollision(false);
                 }
             }
         }else{
@@ -170,6 +213,8 @@ public class MGDExerciseGame extends Game{
     @Override
     public void draw(float deltaSeconds) {
         graphicsDevice.setCamera(this.camera);
+
+        graphicsDevice.clear(1.0f, 0.5f, 0.0f, 1.0f, 1.0f); //hintergrund farbe ändern
 
         if(gameState.game_over == false){
             GLES20.glClearDepthf(1.0f);
@@ -187,8 +232,11 @@ public class MGDExerciseGame extends Game{
 //            renderer.drawMesh(munitions_box.getModelMesh(), munitions_box.getModelMaterial(), munitions_box.getGameObjectPositionInWorldMatrix());
 
             renderer.drawMesh(fadenkreuz.getModelMesh(), fadenkreuz.getModelMaterial(), fadenkreuz.getGameObjectPositionInWorldMatrix());
+            renderer.drawText(scoreLabelText, scoreLabelMatrix);
             renderer.drawText(scoreText, scoreMatrix);
+            renderer.drawText(timeLabelText, timeLabelMatrix);
             renderer.drawText(timeText, timeMatrix);
+            renderer.drawText(amorText, amorMatrix);
         }
         else{
             graphicsDevice.clear(1.0f, 0.5f, 0.0f, 1.0f, 1.0f); //hintergrund farbe ändern

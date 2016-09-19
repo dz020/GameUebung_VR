@@ -40,7 +40,7 @@ public class MGDExerciseActivity extends CardboardActivity {
     private static int mThreshold = 5;
     private static Handler mHandler = new Handler();
     private static final int POLL_INTERVAL = 500; //ist auch die verzögerung bis laser sound erklingt
-    private static int GAME_DURATION = 30000; // 30 sek
+    private static int GAME_DURATION = 10000; // 120 sek bzw 2 min
     private static SoundPool soundPool;
     private static int laserSound;
     private static int beepSound;
@@ -147,17 +147,8 @@ public class MGDExerciseActivity extends CardboardActivity {
 
     public static void setToastText(String text){
         //mOverlayView.setText(text);
-        mOverlayView.show3DToast("noise detected " + text);
+        //mOverlayView.show3DToast("noise detected " + text);
         //setText(text);
-    }
-
-    private void setText(final String text){
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                mOverlayView.show3DToast("noise detected " + text);
-            }
-        });
     }
 
     public static boolean noise_deteced;
@@ -192,6 +183,7 @@ public class MGDExerciseActivity extends CardboardActivity {
                     noise_deteced = true;
                     MGDExerciseGame.gameState.current_ammo--; //munition dekrementieren
                     Log.e("munition übrig: ", ""+MGDExerciseGame.gameState.current_ammo);
+                    //MGDExerciseGame.amorText.setText(""+MGDExerciseGame.gameState.current_ammo);
                 }
                 else{
                     noise_deteced = false;
