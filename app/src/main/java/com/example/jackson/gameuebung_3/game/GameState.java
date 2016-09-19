@@ -13,6 +13,8 @@ public class GameState {
     public int current_ammo = 8;
     public int max_ammo = 8;
     public int increase_ammo = 3;
+    public int max_game_object_amount = 10;
+    public static boolean empty_ammo = false;
 
     public GameState() {
     }

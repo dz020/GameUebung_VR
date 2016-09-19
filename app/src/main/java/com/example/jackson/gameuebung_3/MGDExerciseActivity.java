@@ -40,12 +40,14 @@ public class MGDExerciseActivity extends CardboardActivity {
     private static int mThreshold = 5;
     private static Handler mHandler = new Handler();
     private static final int POLL_INTERVAL = 500; //ist auch die verzögerung bis laser sound erklingt
-    private static int GAME_DURATION = 10000; // 120 sek bzw 2 min
+    private static int GAME_DURATION = 620000; // 120 sek bzw 2 min
     private static SoundPool soundPool;
     private static int laserSound;
     private static int beepSound;
     private static int finalBeepSound;
     private static int coinSound;
+    private static int reloadSound;
+    public static boolean soundPoolLoadingFinished = false;
     public static ActivityManager activityManager;
     public static ActivityManager.MemoryInfo memoryInfo;
     public static int max_highscore_entries = 5;
@@ -90,11 +92,18 @@ public class MGDExerciseActivity extends CardboardActivity {
         memoryInfo = new ActivityManager.MemoryInfo();
         activityManager.getMemoryInfo(memoryInfo);
 
-        soundPool = new SoundPool.Builder().setMaxStreams(4).build();
-        laserSound = soundPool.load(getApplicationContext(), R.raw.laser, 3); // in 2nd param u have to pass your desire ringtone
-        beepSound = soundPool.load(getApplicationContext(), R.raw.beep, 1);
-        finalBeepSound = soundPool.load(getApplicationContext(), R.raw.final_beep, 2);
-        coinSound = soundPool.load(getApplicationContext(), R.raw.coin, 4);
+        soundPool = new SoundPool.Builder().setMaxStreams(5).build();
+        laserSound = soundPool.load(getApplicationContext(), R.raw.laser, 1); // in 2nd param u have to pass your desire ringtone
+        coinSound = soundPool.load(getApplicationContext(), R.raw.coin, 2);
+        reloadSound = soundPool.load(getApplicationContext(), R.raw.reload, 2);
+//        beepSound = soundPool.load(getApplicationContext(), R.raw.beep, 5);
+//        finalBeepSound = soundPool.load(getApplicationContext(), R.raw.final_beep, 5);
+        soundPool.setOnLoadCompleteListener(new SoundPool.OnLoadCompleteListener() {
+            @Override
+            public void onLoadComplete(SoundPool soundPool, int sampleId, int status) {
+                soundPoolLoadingFinished = true;
+            }
+        });
 
         Log.e("oncreate", "end");
     }
@@ -125,7 +134,7 @@ public class MGDExerciseActivity extends CardboardActivity {
         super.onResume(); //erst die activity starten
         Log.e("onresume", "begin");
         view.onResume();
-        showToast();
+        //showToast();
         if(call_counter == 0){
             mp.start();
         }else{
@@ -156,13 +165,17 @@ public class MGDExerciseActivity extends CardboardActivity {
         Log.e("activity", "callForHelp "+ amplitude);
         // Show alert when noise thersold crossed
         //Toast.makeText(getApplicationContext(), "Noise Thersold Crossed, do here your stuff.", Toast.LENGTH_LONG).show();
-        mOverlayView.show3DToast("noise detected " + amplitude);
+        //mOverlayView.show3DToast("noise detected " + amplitude);
         soundPool.play(laserSound, 0.05f, 0.05f, 2, 0, 1);
     }
 
-    public static void setCollision(boolean active){
+    public static void setCollision(boolean active, boolean reload){
         if(active == true && noise_deteced == true){
-            soundPool.play(coinSound, 0.05f, 0.05f, 1, 0, 1);
+            if(!reload){
+                soundPool.play(coinSound, 0.1f, 0.1f, 1, 0, 1);
+            }else{
+                soundPool.play(reloadSound, 0.15f, 0.15f, 1, 0, 1);
+            }
         }
     }
 
@@ -178,12 +191,16 @@ public class MGDExerciseActivity extends CardboardActivity {
             double amp = mSensor.getAmplitude();
             //Log.e("Noise", "runnable mPollTask " + amp);
             if(mIsStopped == false && GAME_DURATION > 0){
-                if (amp > mThreshold && MGDExerciseGame.gameState.current_ammo > 0 ) { //wenn schuss abgegeben und munition verfügbar
-                    callForHelp(amp);
-                    noise_deteced = true;
-                    MGDExerciseGame.gameState.current_ammo--; //munition dekrementieren
-                    Log.e("munition übrig: ", ""+MGDExerciseGame.gameState.current_ammo);
-                    //MGDExerciseGame.amorText.setText(""+MGDExerciseGame.gameState.current_ammo);
+                if (amp > mThreshold ) { //wenn schuss abgegeben und munition verfügbar
+                    if(MGDExerciseGame.gameState.current_ammo == 0){
+                        MGDExerciseGame.gameState.empty_ammo = true;
+                        noise_deteced = true;
+                    }else{
+                        callForHelp(amp);
+                        noise_deteced = true;
+                        MGDExerciseGame.gameState.current_ammo--; //muss hier passieren !!
+                        MGDExerciseGame.gameState.empty_ammo = false;
+                    }
                 }
                 else{
                     noise_deteced = false;
@@ -194,7 +211,7 @@ public class MGDExerciseActivity extends CardboardActivity {
                 if(increaseTimeAllowed == false){
                     increaseTimeAllowed = true;
                     MGDExerciseGame.timeText.setText(""+(GAME_DURATION/1000));
-                    Log.e("übrige zeit", ""+(GAME_DURATION/1000));
+                    //Log.e("übrige zeit", ""+(GAME_DURATION/1000));
                 }else{
                     increaseTimeAllowed = false;
                 }

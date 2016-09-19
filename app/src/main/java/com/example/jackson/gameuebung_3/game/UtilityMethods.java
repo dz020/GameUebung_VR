@@ -8,7 +8,6 @@ import android.util.Log;
 import com.example.jackson.gameuebung_3.MGDExerciseActivity;
 import com.example.jackson.gameuebung_3.Mesh;
 import com.example.jackson.gameuebung_3.graphics.Texture;
-import com.example.jackson.gameuebung_3.math.Matrix4x4;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -67,7 +66,7 @@ public class UtilityMethods {
                         int finalBeepSound = MGDExerciseActivity.getFinalBeepSound();
                         MGDExerciseActivity.getSoundPool().play(finalBeepSound, 0.05f, 0.05f, 0, 0, 1);
                         //Log.e("TAG", "countdown abgelaufen");
-                        repositionGameObject(new GameObject("box.obj", "box.png"));
+                        //repositionGameObject(new GameObject("box.obj", "box.png"));
                         //createGameObject("box.obj", "box.png");
 //                        renderer.drawMesh(modelMesh, modelMaterial, gameObjectList.get(1));
                         // draw(0);
@@ -80,6 +79,7 @@ public class UtilityMethods {
     public static float rotation = 45;
     public static int gameObjectItertor = 0;
 
+    /*
     public static void repositionGameObject(GameObject gameObject){
         Matrix4x4 box = gameObject.getGameObjectPositionInWorldMatrix();
         Matrix4x4 rotated_box = Matrix4x4.createRotationY(rotation);
@@ -92,7 +92,7 @@ public class UtilityMethods {
         }
         MGDExerciseGame.gameObjectList.get(gameObjectItertor).setPosition_in_world(tmp);
         UtilityMethods.countDown();
-    }
+    }*/
 
     public void createScoreAlert(final int amount){
         ((MGDExerciseActivity) MGDExerciseGame.context).runOnUiThread(new Runnable() {

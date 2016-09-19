@@ -16,6 +16,7 @@ import com.example.jackson.gameuebung_3.math.Vector3;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Random;
 
 /**
  * Created by Jackson on 29.03.2016.
@@ -24,7 +25,8 @@ public class MGDExerciseGame extends Game{
     public static String TAG = "MGDExerciseGame";
 
     private Camera camera;
-    public static LinkedList<GameObject> gameObjectList = new LinkedList<>();
+    public static LinkedList<GameObject> unvisible_gameObjectList = new LinkedList<>();
+    LinkedList<GameObject> currently_visible_gameObjects = new LinkedList<>();
     public static GameState gameState;
     private Renderer renderer;
     public static Context context;
@@ -41,6 +43,8 @@ public class MGDExerciseGame extends Game{
     Matrix4x4 timeLabelMatrix;
     public static TextBuffer amorText;
     Matrix4x4 amorMatrix;
+
+    Matrix4x4 munitionsBoxMatrix;
 
     public MGDExerciseGame(Context context) {
         super(context);
@@ -61,12 +65,20 @@ public class MGDExerciseGame extends Game{
 
         Log.e(TAG, "test loggg");
 
+
+
         try {
-            List<List<String>> list = UtilityMethods.getListFromCSV("mixed.csv");
+            //list anlegen mit allen möglichen gameobject positionen
+            List<List<String>> list = UtilityMethods.getListFromCSV("final_object_list.csv");
             for(int i = 0; i< list.size(); i++){
-                GameObject gameObject = new GameObject("box.obj", "box.png");
-                gameObject.addData(list.get(i));
-                gameObjectList.add(gameObject);
+                if(i == 2){
+                    munitions_box = new GameObject("box.obj", "munition.png");
+                    munitions_box.addData(list.get(i));
+                }else{
+                    GameObject gameObject = new GameObject("box.obj", "box.png");
+                    gameObject.addData(list.get(i));
+                    unvisible_gameObjectList.add(gameObject);
+                }
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -85,10 +97,15 @@ public class MGDExerciseGame extends Game{
         menu_bg.setPosition_in_world(tmp.scale(6,10,1));
         menu_btn.setPosition_in_world(test.scale(1.3f, 0.7f, 1.0f ));
 
-        munitions_box = new GameObject("box.obj", "munition.png");
-        munitions_box.setPosition_in_world(test.scale(1.3f, 0.7f, 1.0f ));
+        //munitions_box = new GameObject("box.obj", "munition.png");
+        //munitions_box.addData();
+        //Matrix4x4 need = Matrix4x4.createTranslation(-11f, 0.5f, -8f);
+        //munitionsBoxMatrix = new Matrix4x4(need).scale(0.8f, 0.8f, 0.6f );
+        //munitions_box.setPosition_in_world(munitionsBoxMatrix);
         munitions_box.setType("munitions_box");
-        gameObjectList.add(munitions_box);
+        //unvisible_gameObjectList.add(munitions_box);
+        munitionsBoxMatrix = munitions_box.getGameObjectPositionInWorldMatrix();
+        currently_visible_gameObjects.add(munitions_box);
 
         Typeface myTypeface = Typeface.createFromAsset(context.getAssets(), "fonts/rubik.ttf");
         SpriteFont spriteFont = new SpriteFont(graphicsDevice, myTypeface, 44f);
@@ -109,6 +126,9 @@ public class MGDExerciseGame extends Game{
         renderer = new Renderer(graphicsDevice);
 
         MGDExerciseActivity.startPollTask();
+        while(MGDExerciseActivity.soundPoolLoadingFinished == false){
+
+        }
         MGDExerciseActivity.gameIsReady = true;
         //hier könnte dann gamelevel inkrementiert werden und mit gameobject amount multipliziert werden
     }
@@ -120,15 +140,6 @@ public class MGDExerciseGame extends Game{
     @Override
     public void update(float deltaSeconds) {
 
-        //Matrix4x4.createTranslation(shape_position_in_world.getX(), shape_position_in_world.getY(), -8f);
-        //Log.e(TAG, "position von shape X: " + shape_position_in_world.getX() + " Y: " + shape_position_in_world.getY());
-        //Log.e(TAG, "position von gameObject X: "+gameObjectList.get(UtilityMethods.gameObjectItertor).getShape().getPosition().getX()+" Y: "+gameObjectList.get(UtilityMethods.gameObjectItertor).getShape().getPosition().getY());
-
-        /*
-        Log.e(TAG, "forward vector: x: " + forwardVector.getX() + " y: " + forwardVector.getY() + " z: " + forwardVector.getZ());
-        Vector3 fadenkreuzPos = Vector3.multiply(-8, forwardVector);
-        fadenkreuz.setPosition_in_world(Matrix4x4.createTranslation(fadenkreuzPos.getX(), fadenkreuzPos.getY(), fadenkreuzPos.getZ()));
-        */
         Matrix4x4 fadenkreuzWorldMatrix = Matrix4x4.multiply(headView.getInverse(), Matrix4x4.createTranslation(-0.5f, 0.5f, -8f));
         Matrix4x4 adjustToCenter = new Matrix4x4(fadenkreuzWorldMatrix);
         adjustToCenter.translate(0.25f,-0.85f, 0f); //sehr angenehm fürs auge positioniert
@@ -165,39 +176,79 @@ public class MGDExerciseGame extends Game{
             amorMatrix = fadenkreuzMatrixCopyForAmorMatrix;
 
 
-        if(gameState.game_over == false) {
+        if(gameState.game_over == false) { //also wenn in game
 
-            for (int i = 0; i < gameObjectList.size(); i++) {
-                if (fadenkreuz.getShape().intersects(gameObjectList.get(i).getShape(), gameObjectList.get(i).getOrbit())) {
-                    //Log.e(TAG, "collsion detected !!!!!");
-                    MGDExerciseActivity.setCollision(true);
-                    if (MGDExerciseActivity.noise_deteced == true) {
+            int counter = 0;
+            //gucken dass immer 3 boxen zum abschießen da sind
+            while(currently_visible_gameObjects.size() < 4){
 
-                        if (gameObjectList.get(i).destroyed == false) {
-                            //Log.e(TAG, "noise deteced und abgeschossen");
-                            gameObjectList.get(i).setDestroyed();
-                            if (gameObjectList.get(i).getType().equals("munitions_box")) {
-                                gameState.current_ammo = gameState.current_ammo + gameState.increase_ammo; //aktuell um 3 erhöhen
-                                if (gameState.current_ammo > gameState.max_ammo) {
-                                    gameState.current_ammo = gameState.max_ammo;
-                                }
-                            } else {
-                                gameState.setCurrent_score(gameState.getCurrent_score() + gameObjectList.get(i).points);
+                Random randomGenerator = new Random();
+                int index = randomGenerator.nextInt(unvisible_gameObjectList.size());
+                //Log.e("index", "index werte: "+index);
+
+                if(currently_visible_gameObjects.size() == 0){
+                    currently_visible_gameObjects.add(unvisible_gameObjectList.get(index));
+                    counter++;
+                    break;
+                }
+
+                if( (unvisible_gameObjectList.get(index).orbit != currently_visible_gameObjects.get(counter).orbit) &&
+                        (unvisible_gameObjectList.get(index).slot != currently_visible_gameObjects.get(counter).slot) ) {
+                    ///Log.e("in if", "mit index: "+index);
+                    if( !(unvisible_gameObjectList.get(index).getShape().intersects(currently_visible_gameObjects.get(counter).getShape(), currently_visible_gameObjects.get(counter).getOrbit())) ) {
+                        currently_visible_gameObjects.add(unvisible_gameObjectList.get(index));
+                        counter++;
+                        continue;
+                    }
+                }
+            }
+            //Log.e("visible", "_game_objects should be: "+currently_visible_gameObjects.size());
+
+            //munition herunterzählen unabhängig von collisions
+            if (MGDExerciseActivity.noise_deteced == true) {
+                Log.e("increment", "current ammo "+ gameState.current_ammo);
+                String amor = "";
+                for (int ii = 0; ii < gameState.current_ammo; ii++) {
+                    amor += " I";
+                }
+                amorText.setText(amor);
+                //Log.e("amor II ", amor);
+            }
+
+            //collision detection
+            for (int i = 0; i < currently_visible_gameObjects.size(); i++) {
+                if (fadenkreuz.getShape().intersects(currently_visible_gameObjects.get(i).getShape(), currently_visible_gameObjects.get(i).getOrbit())) {
+                    Log.e(TAG, "collsion detected !!!!!");
+                    if (MGDExerciseActivity.noise_deteced == true) { //schuss ausgelöst
+                        if (currently_visible_gameObjects.get(i).getType().equals("munitions_box")) {
+                            Log.e("munitionsbox", "sollte abgeschossen worden sein");
+                            MGDExerciseActivity.setCollision(true, true);
+                            gameState.current_ammo = gameState.current_ammo + gameState.increase_ammo; //aktuell um 3 erhöhen
+                            if (gameState.current_ammo > gameState.max_ammo) {
+                                gameState.current_ammo = gameState.max_ammo;
+                            }
+                            Log.e("neue munition", " :"+gameState.current_ammo );
+                            currently_visible_gameObjects.remove(i);
+                            munitions_box = new GameObject("box.obj", "munition.png");
+                            munitions_box.setPosition_in_world(munitionsBoxMatrix);
+                            munitions_box.setType("munitions_box");
+                            currently_visible_gameObjects.add(munitions_box);
+                        }
+                        else{
+                            if(!gameState.empty_ammo){
+                                Log.e(TAG, "normale box sollte abgeschossen worden sein");
+                                MGDExerciseActivity.setCollision(true, false);
+                                //currently_visible_gameObjects.get(i).setDestroyed(); //färbt boxen rot statt sie zu entfernen, für debugging
+                                gameState.setCurrent_score(gameState.getCurrent_score() + currently_visible_gameObjects.get(i).points);
                                 scoreText.setText("" + (int) gameState.getCurrent_score());
                                 Log.e("aktueller score:", "" + gameState.getCurrent_score());
+                                currently_visible_gameObjects.remove(i);
                             }
                         }
-
-                        String amor = "";
-                        for (int ii = 0; ii < gameState.current_ammo; ii++) {
-                            amor += " I";
-                        }
-                        Log.e("amor II ", amor);
-                        amorText.setText(amor);
-
-                    } else {
+                    }
+                    else {
                         //gameObjectList.get(i).setModelTexture("box.png");
-                        MGDExerciseActivity.setCollision(false);
+                        MGDExerciseActivity.setCollision(false, false);
                     }
                 }
             }
@@ -220,16 +271,19 @@ public class MGDExerciseGame extends Game{
             GLES20.glClearDepthf(1.0f);
             GLES20.glClear(GLES20.GL_DEPTH_BUFFER_BIT);
 
-            for(int i=0; i< gameObjectList.size(); i++){
-                GameObject gameObject = gameObjectList.get(i);
+            for(int i=0; i< currently_visible_gameObjects.size(); i++){
+                GameObject gameObjectTmp = currently_visible_gameObjects.get(i);
                 //if(gameObject.destroyed == false){
-                gameObject.getGameObjectPositionInWorldMatrix().rotateY(1f);
-                renderer.drawMesh(gameObject.getModelMesh(), gameObject.getModelMaterial(), gameObject.getGameObjectPositionInWorldMatrix());
-                //renderer.drawMesh(gameObject.shape.getMesh(), gameObject.shape.getMaterial(), gameObject.getGameObjectPositionInWorldMatrix());
+                gameObjectTmp.getGameObjectPositionInWorldMatrix().rotateY(1f);
+                renderer.drawMesh(gameObjectTmp.getModelMesh(), gameObjectTmp.getModelMaterial(), gameObjectTmp.getGameObjectPositionInWorldMatrix());
+//                renderer.drawMesh(gameObjectTmp.shape.getMesh(), gameObjectTmp.shape.getMaterial(), gameObjectTmp.getGameObjectPositionInWorldMatrix());
                 //}
+                //Log.e("posis", "winkel: "+gameObjectTmp.slot+" orbit: "+gameObjectTmp.orbit);
             }
+            //Log.e("draw call", "es sollten gameobjects gezeichnet werden: "+currently_visible_gameObjects.size());
 
-//            renderer.drawMesh(munitions_box.getModelMesh(), munitions_box.getModelMaterial(), munitions_box.getGameObjectPositionInWorldMatrix());
+            munitions_box.getGameObjectPositionInWorldMatrix().rotateY(0.3f);
+            renderer.drawMesh(munitions_box.getModelMesh(), munitions_box.getModelMaterial(), munitions_box.getGameObjectPositionInWorldMatrix());
 
             renderer.drawMesh(fadenkreuz.getModelMesh(), fadenkreuz.getModelMaterial(), fadenkreuz.getGameObjectPositionInWorldMatrix());
             renderer.drawText(scoreLabelText, scoreLabelMatrix);
