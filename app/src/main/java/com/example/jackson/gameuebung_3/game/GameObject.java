@@ -92,9 +92,9 @@ public class GameObject{
     }
 
     public void setModelTexture(String filename){
-        modelTexture = UtilityMethods.loadTexture(filename);
-        modelMaterial = new Material();
-        modelMaterial.setTexture(modelTexture);
+        this.modelTexture = UtilityMethods.loadTexture(filename);
+        this.modelMaterial = new Material();
+        this.modelMaterial.setTexture(modelTexture);
     }
 
     public void addData(List<String> list){

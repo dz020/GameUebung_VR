@@ -56,10 +56,11 @@ public class MGDExerciseGame extends Game{
     }
 
     GameObject fadenkreuz;
-    GameObject menu_bg;
-    GameObject menu_btn;
+    GameObject highscore_background;
+    GameObject highscore_btn_play_again;
     GameObject munitions_box;
-    Matrix4x4 fadenkreuzMatrix;
+
+    Matrix4x4 adjustToCenterMatrix;
 
     Mesh skyMesh;
     Texture skyTexture;
@@ -106,33 +107,27 @@ public class MGDExerciseGame extends Game{
         fadenkreuz = new GameObject("quad.obj", "fadenkreuz.png");
         fadenkreuz.makeShapeVisible("sphere.obj", "yellow.png");
 
-        menu_bg = new GameObject("quad.obj", "menu.png");
-        menu_btn = new GameObject("quad.obj", "highscore.png");
+        highscore_background = new GameObject("quad.obj", "highscore_bg.png");
+        highscore_btn_play_again = new GameObject("quad.obj", "again_btn.png");
 
         Matrix4x4 tmp = Matrix4x4.createTranslation(-0.5f, 0.5f, -8f);
         Matrix4x4 test = new Matrix4x4(tmp);
-        menu_bg.setPosition_in_world(tmp.scale(6,10,1));
-        menu_btn.setPosition_in_world(test.scale(1.3f, 0.7f, 1.0f ));
+        highscore_background.setPosition_in_world(tmp.scale(6,10,1));
+        highscore_btn_play_again.setPosition_in_world(test.scale(1.5f, 0.7f, 1.0f ).translate(0f, 1f, 0f));
 
-        //munitions_box = new GameObject("box.obj", "munition.png");
-        //munitions_box.addData();
-        //Matrix4x4 need = Matrix4x4.createTranslation(-11f, 0.5f, -8f);
-        //munitionsBoxMatrix = new Matrix4x4(need).scale(0.8f, 0.8f, 0.6f );
-        //munitions_box.setPosition_in_world(munitionsBoxMatrix);
         munitions_box.setType("munitions_box");
-        //unvisible_gameObjectList.add(munitions_box);
         munitionsBoxMatrix = munitions_box.getGameObjectPositionInWorldMatrix();
         currently_visible_gameObjects.add(munitions_box);
 
         Typeface myTypeface = Typeface.createFromAsset(context.getAssets(), "fonts/rubik.ttf");
         SpriteFont spriteFont = new SpriteFont(graphicsDevice, myTypeface, 44f);
+
         scoreText = graphicsDevice.createTextBuffer(spriteFont, 16);
         scoreText.setText("0");
         scoreLabelText = graphicsDevice.createTextBuffer(spriteFont, 16);
         scoreLabelText.setText("SCORE");
 
         timeText = graphicsDevice.createTextBuffer(spriteFont, 16);
-//        timeText.setText("2:00");
         timeLabelText = graphicsDevice.createTextBuffer(spriteFont, 16);
         timeLabelText.setText("TIME");
 
@@ -148,6 +143,7 @@ public class MGDExerciseGame extends Game{
         }
         MGDExerciseActivity.gameIsReady = true;
         //hier könnte dann gamelevel inkrementiert werden und mit gameobject amount multipliziert werden
+        gameState.setStatus("in game");
     }
 
     public void setForwardVector(Vector3 forwardVector) {
@@ -158,9 +154,9 @@ public class MGDExerciseGame extends Game{
     public void update(float deltaSeconds) {
 
         Matrix4x4 fadenkreuzWorldMatrix = Matrix4x4.multiply(headView.getInverse(), Matrix4x4.createTranslation(-0.5f, 0.5f, -8f));
-        Matrix4x4 adjustToCenter = new Matrix4x4(fadenkreuzWorldMatrix);
-        adjustToCenter.translate(0.25f,-0.85f, 0f); //sehr angenehm fürs auge positioniert
-        fadenkreuz.setPosition_in_world(adjustToCenter);
+        adjustToCenterMatrix = new Matrix4x4(fadenkreuzWorldMatrix);
+        adjustToCenterMatrix.translate(0.25f,-0.85f, 0f); //sehr angenehm fürs auge positioniert
+        fadenkreuz.setPosition_in_world(adjustToCenterMatrix);
 
             Matrix4x4 fadenkreuzMatrixCopyForScoreLabelMatrix = new Matrix4x4(fadenkreuzWorldMatrix);
             fadenkreuzMatrixCopyForScoreLabelMatrix.rotateX(0);
@@ -192,8 +188,11 @@ public class MGDExerciseGame extends Game{
             fadenkreuzMatrixCopyForAmorMatrix.translate(-90f, -120f, 0f);
             amorMatrix = fadenkreuzMatrixCopyForAmorMatrix;
 
+        if(gameState.status.equals("menu before game")){
 
-        if(gameState.game_over == false) { //also wenn in game
+        }
+
+        if(gameState.status.equals("in game")) { //also wenn in game
 
             int counter = 0;
             //gucken dass immer 3 boxen zum abschießen da sind
@@ -269,11 +268,14 @@ public class MGDExerciseGame extends Game{
                     }
                 }
             }
-        }else{
-            menu_btn.setModelTexture("highscore.png");
-            if(  fadenkreuz.getShape().intersects(menu_btn.getShape(), 0.5f )){
+        }if(gameState.status.equals("game over")){
+            Log.e("status", "game over");
+            if( fadenkreuz.getShape().intersects(highscore_btn_play_again.getShape(), 0.5f )){
                 Log.e(TAG, "menu button kollision");
-                menu_btn.setModelTexture("highscore_hovered.png");
+                highscore_btn_play_again.setModelTexture("again_btn_hovered.png");
+                if(MGDExerciseActivity.noise_deteced){
+                    gameState.setStatus("in game");
+                }
             }
         }
     }
@@ -285,10 +287,16 @@ public class MGDExerciseGame extends Game{
         graphicsDevice.clear(1.0f, 0.5f, 0.0f, 1.0f, 1.0f); //hintergrund farbe ändern
 
         renderer.drawMesh(skyMesh, skyMaterial, skyMatrix);
+        skyMatrix.rotateY(0.05f); //himmel soll sich minimal bewegen
 
-        if(gameState.game_over == false){
-            GLES20.glClearDepthf(1.0f);
-            GLES20.glClear(GLES20.GL_DEPTH_BUFFER_BIT);
+        GLES20.glClearDepthf(1.0f);
+        GLES20.glClear(GLES20.GL_DEPTH_BUFFER_BIT);
+
+        if(gameState.status.equals("menu before game")){
+
+        }
+
+        if(gameState.status.equals("in game")){
 
             for(int i=0; i< currently_visible_gameObjects.size(); i++){
                 GameObject gameObjectTmp = currently_visible_gameObjects.get(i);
@@ -311,10 +319,9 @@ public class MGDExerciseGame extends Game{
             renderer.drawText(timeText, timeMatrix);
             renderer.drawText(amorText, amorMatrix);
         }
-        else{
-            graphicsDevice.clear(1.0f, 0.5f, 0.0f, 1.0f, 1.0f); //hintergrund farbe ändern
-            renderer.drawMesh(menu_bg.getModelMesh(), menu_bg.getModelMaterial(), menu_bg.getGameObjectPositionInWorldMatrix());
-            renderer.drawMesh(menu_btn.getModelMesh(), menu_btn.getModelMaterial(), menu_btn.getGameObjectPositionInWorldMatrix());
+        if(gameState.status.equals("game over")){
+            renderer.drawMesh(highscore_background.getModelMesh(), highscore_background.getModelMaterial(), highscore_background.getGameObjectPositionInWorldMatrix());
+            renderer.drawMesh(highscore_btn_play_again.getModelMesh(), highscore_btn_play_again.getModelMaterial(), highscore_btn_play_again.getGameObjectPositionInWorldMatrix());
             renderer.drawMesh(fadenkreuz.getModelMesh(), fadenkreuz.getModelMaterial(), fadenkreuz.getGameObjectPositionInWorldMatrix());
         }
     }

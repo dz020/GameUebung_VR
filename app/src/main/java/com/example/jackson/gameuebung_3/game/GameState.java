@@ -9,7 +9,7 @@ public class GameState {
     public int gameObject_destroyed_counter;
     public int level;
     public float current_score;
-    public boolean game_over = false;
+    public String status = "in game";
     public int current_ammo = 8;
     public int max_ammo = 8;
     public int increase_ammo = 3;
@@ -67,11 +67,11 @@ public class GameState {
         this.current_score = current_score;
     }
 
-    public boolean isGame_over() {
-        return game_over;
+    public String getStatus() {
+        return status;
     }
 
-    public void setGame_over(boolean game_over) {
-        this.game_over = game_over;
+    public void setStatus(String status) {
+        this.status = status;
     }
 }
