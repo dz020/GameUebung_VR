@@ -48,6 +48,19 @@ public class MGDExerciseGame extends Game{
     public static TextBuffer amorText;
     Matrix4x4 amorMatrix;
 
+    public static TextBuffer currentHighScoreText;
+    Matrix4x4 currentHighScoreMatrix;
+    public static TextBuffer currentHighScoreP1Text;
+    Matrix4x4 currentHighScoreP1Matrix;
+    public static TextBuffer currentHighScoreP2Text;
+    Matrix4x4 currentHighScoreP2Matrix;
+    public static TextBuffer currentHighScoreP3Text;
+    Matrix4x4 currentHighScoreP3Matrix;
+    public static TextBuffer currentHighScoreP4Text;
+    Matrix4x4 currentHighScoreP4Matrix;
+    public static TextBuffer currentHighScoreP5Text;
+    Matrix4x4 currentHighScoreP5Matrix;
+
     Matrix4x4 munitionsBoxMatrix;
 
     public MGDExerciseGame(Context context) {
@@ -114,6 +127,19 @@ public class MGDExerciseGame extends Game{
         Matrix4x4 test = new Matrix4x4(tmp);
         highscore_background.setPosition_in_world(tmp.scale(6,10,1));
         highscore_btn_play_again.setPosition_in_world(test.scale(1.5f, 0.7f, 1.0f ).translate(0f, 1f, 0f));
+        currentHighScoreMatrix = new Matrix4x4(highscore_btn_play_again.getGameObjectPositionInWorldMatrix());
+        currentHighScoreMatrix.translate(-1.5f, 1.4f, 0f).scale(0.005f, 0.01f, 0.01f);
+
+        currentHighScoreP1Matrix = new Matrix4x4(highscore_btn_play_again.getGameObjectPositionInWorldMatrix());
+        currentHighScoreP1Matrix.translate(-0.65f, -3f, 0f).scale(0.005f, 0.01f, 0.01f);
+        currentHighScoreP2Matrix = new Matrix4x4(highscore_btn_play_again.getGameObjectPositionInWorldMatrix());
+        currentHighScoreP2Matrix.translate(-0.65f, -4f, 0f).scale(0.005f, 0.01f, 0.01f);
+        currentHighScoreP3Matrix = new Matrix4x4(highscore_btn_play_again.getGameObjectPositionInWorldMatrix());
+        currentHighScoreP3Matrix.translate(-0.65f, -5f, 0f).scale(0.005f, 0.01f, 0.01f);
+        currentHighScoreP4Matrix = new Matrix4x4(highscore_btn_play_again.getGameObjectPositionInWorldMatrix());
+        currentHighScoreP4Matrix.translate(-0.65f, -6f, 0f).scale(0.005f, 0.01f, 0.01f);
+        currentHighScoreP5Matrix = new Matrix4x4(highscore_btn_play_again.getGameObjectPositionInWorldMatrix());
+        currentHighScoreP5Matrix.translate(-0.65f, -7f, 0f).scale(0.005f, 0.01f, 0.01f);
 
         munitions_box.setType("munitions_box");
         munitionsBoxMatrix = munitions_box.getGameObjectPositionInWorldMatrix();
@@ -133,11 +159,17 @@ public class MGDExerciseGame extends Game{
 
         amorText = graphicsDevice.createTextBuffer(spriteFont, 16);
         amorText.setText(" I I I I I I I I");
-        //amorText.setText(""+gameState.max_ammo);
+
+        currentHighScoreText = graphicsDevice.createTextBuffer(spriteFont, 16);
+        currentHighScoreP1Text = graphicsDevice.createTextBuffer(spriteFont, 16);
+        currentHighScoreP2Text = graphicsDevice.createTextBuffer(spriteFont, 16);
+        currentHighScoreP3Text = graphicsDevice.createTextBuffer(spriteFont, 16);
+        currentHighScoreP4Text = graphicsDevice.createTextBuffer(spriteFont, 16);
+        currentHighScoreP5Text = graphicsDevice.createTextBuffer(spriteFont, 16);
 
         renderer = new Renderer(graphicsDevice);
 
-        MGDExerciseActivity.startPollTask();
+        MGDExerciseActivity.startNewInGamePollTask();
         while(MGDExerciseActivity.soundPoolLoadingFinished == false){
 
         }
@@ -269,13 +301,17 @@ public class MGDExerciseGame extends Game{
                 }
             }
         }if(gameState.status.equals("game over")){
-            Log.e("status", "game over");
+
             if( fadenkreuz.getShape().intersects(highscore_btn_play_again.getShape(), 0.5f )){
-                Log.e(TAG, "menu button kollision");
                 highscore_btn_play_again.setModelTexture("again_btn_hovered.png");
                 if(MGDExerciseActivity.noise_deteced){
+                    Log.e(TAG, "menu button kollision und noise");
                     gameState.setStatus("in game");
+                    MGDExerciseActivity.resetGameDuration();
+                    MGDExerciseActivity.startNewInGamePollTask();
                 }
+            }else{
+                highscore_btn_play_again.setModelTexture("again_btn.png");
             }
         }
     }
@@ -287,7 +323,6 @@ public class MGDExerciseGame extends Game{
         graphicsDevice.clear(1.0f, 0.5f, 0.0f, 1.0f, 1.0f); //hintergrund farbe ändern
 
         renderer.drawMesh(skyMesh, skyMaterial, skyMatrix);
-        skyMatrix.rotateY(0.05f); //himmel soll sich minimal bewegen
 
         GLES20.glClearDepthf(1.0f);
         GLES20.glClear(GLES20.GL_DEPTH_BUFFER_BIT);
@@ -321,6 +356,12 @@ public class MGDExerciseGame extends Game{
         }
         if(gameState.status.equals("game over")){
             renderer.drawMesh(highscore_background.getModelMesh(), highscore_background.getModelMaterial(), highscore_background.getGameObjectPositionInWorldMatrix());
+            renderer.drawText(currentHighScoreText, currentHighScoreMatrix);
+            renderer.drawText(currentHighScoreP1Text, currentHighScoreP1Matrix);
+            renderer.drawText(currentHighScoreP2Text, currentHighScoreP2Matrix);
+            renderer.drawText(currentHighScoreP3Text, currentHighScoreP3Matrix);
+            renderer.drawText(currentHighScoreP4Text, currentHighScoreP4Matrix);
+            renderer.drawText(currentHighScoreP5Text, currentHighScoreP5Matrix);
             renderer.drawMesh(highscore_btn_play_again.getModelMesh(), highscore_btn_play_again.getModelMaterial(), highscore_btn_play_again.getGameObjectPositionInWorldMatrix());
             renderer.drawMesh(fadenkreuz.getModelMesh(), fadenkreuz.getModelMaterial(), fadenkreuz.getGameObjectPositionInWorldMatrix());
         }

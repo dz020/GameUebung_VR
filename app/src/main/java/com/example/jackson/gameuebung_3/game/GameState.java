@@ -15,6 +15,24 @@ public class GameState {
     public int increase_ammo = 3;
     public int max_game_object_amount = 7;
     public static boolean empty_ammo = false;
+    public int currentHighScorePosition;
+    public int[] highScore;
+
+    public int getCurrentHighScorePosition() {
+        return currentHighScorePosition;
+    }
+
+    public void setCurrentHighScorePosition(int currentHighScorePosition) {
+        this.currentHighScorePosition = currentHighScorePosition;
+    }
+
+    public int[] getHighScore() {
+        return highScore;
+    }
+
+    public void setHighScore(int[] highScore) {
+        this.highScore = highScore;
+    }
 
     public GameState() {
     }

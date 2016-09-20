@@ -24,7 +24,7 @@ public class TextBuffer {
                 new VertexElement(8, 16, GL10.GL_FLOAT, 2, VertexElement.VertexSemantic.VERTEX_ELEMENT_TEXCOORD)
         };
 
-        ByteBuffer data = ByteBuffer.allocateDirect(6 * 16 * capacity);
+        ByteBuffer data = ByteBuffer.allocateDirect(6 * 32 * capacity);
         data.order(ByteOrder.nativeOrder());
 
         VertexBuffer vertexBuffer = new VertexBuffer();

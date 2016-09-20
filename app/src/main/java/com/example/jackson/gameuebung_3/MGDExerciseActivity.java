@@ -17,10 +17,13 @@
 package com.example.jackson.gameuebung_3;
 
 import android.app.ActivityManager;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.media.MediaPlayer;
 import android.media.SoundPool;
 import android.os.Bundle;
 import android.os.Handler;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.Window;
 import android.view.WindowManager;
@@ -28,6 +31,10 @@ import android.view.WindowManager;
 import com.example.jackson.gameuebung_3.audio.SoundMeter;
 import com.example.jackson.gameuebung_3.game.MGDExerciseGame;
 import com.google.vrtoolkit.cardboard.CardboardActivity;
+
+import java.util.Arrays;
+import java.util.Map;
+import java.util.Set;
 
 
 public class MGDExerciseActivity extends CardboardActivity {
@@ -40,7 +47,8 @@ public class MGDExerciseActivity extends CardboardActivity {
     private static int mThreshold = 5;
     private static Handler mHandler = new Handler();
     private static final int POLL_INTERVAL = 500; //ist auch die verzögerung bis laser sound erklingt
-    private static int GAME_DURATION = 120000; // 120 sek bzw 2 min
+    public static int INIT_GAME_DURATION = 120000;
+    public static int GAME_DURATION = INIT_GAME_DURATION; // 120 sek bzw 2 min
     private static SoundPool soundPool;
     private static int laserSound;
     private static int beepSound;
@@ -52,6 +60,11 @@ public class MGDExerciseActivity extends CardboardActivity {
     public static ActivityManager.MemoryInfo memoryInfo;
     public static int max_highscore_entries = 5;
 
+    public static Context context;
+
+    public static void resetGameDuration(){
+        GAME_DURATION = INIT_GAME_DURATION;
+    }
 
     public static SoundPool getSoundPool() {
         return soundPool;
@@ -74,6 +87,7 @@ public class MGDExerciseActivity extends CardboardActivity {
     public void onCreate(Bundle savedInstanceState) {
         Log.e("oncreate", "begin");
         super.onCreate(savedInstanceState);
+        this.context = getApplicationContext();
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.common_ui);
@@ -123,6 +137,8 @@ public class MGDExerciseActivity extends CardboardActivity {
         super.onPause();
         mp.release();
         mSensor.stop();
+        inGamePollThread.stop();
+        inMenuPollThread.stop();
         soundPool.release();
         MGDExerciseView.camera.release();
         Log.e("onpause", "end");
@@ -145,9 +161,25 @@ public class MGDExerciseActivity extends CardboardActivity {
         Log.e("onresume", "end");
     }
 
-    public static void startPollTask(){
-        Thread mythread = new Thread(mPollTask);
-        mythread.start();
+    public static Thread inGamePollThread;
+    public static Thread inMenuPollThread;
+
+    public static void startNewInGamePollTask(){
+        inGamePollThread = new Thread(mPollTask);
+        inGamePollThread.start();
+    }
+
+    public static void stopInGamePollTask(){
+        inGamePollThread.destroy();
+    }
+
+    public static void stopMenuPollTask(){
+        inMenuPollThread.destroy();
+    }
+
+    public static void startNewMenuPollTask(){
+        inMenuPollThread = new Thread(mPollTaskForMenu);
+        inMenuPollThread.start();
     }
 
     public static void showToast(){
@@ -214,26 +246,42 @@ public class MGDExerciseActivity extends CardboardActivity {
                     int min = (GAME_DURATION/1000)/60;
                     if( 0 <= sec && sec < 10 ){
                         MGDExerciseGame.timeText.setText(""+min+":0"+sec);
-                        //if(GAME_DURATION == 0){
-                          //  MGDExerciseGame.gameState.setStatus("game over");
-                        //}
                     }else{
                         MGDExerciseGame.timeText.setText(""+min+":"+sec);
                     }
-                    //Log.e("übrige zeit", ""+(GAME_DURATION/1000));
                 }else{
                     increaseTimeAllowed = false;
                 }
             }
             else{
-                //stop();
+                stop();
                 MGDExerciseGame.gameState.setStatus("game over");
-
+                startNewMenuPollTask();
                 int current_score = (int) MGDExerciseGame.gameState.current_score;
-                //UtilityMethods.saveCurrentScore(getPreferences(MODE_PRIVATE), current_score);
-                //int[] highscore_array = UtilityMethods.loadAndSortHighScore(getPreferences(MODE_PRIVATE));
-                //int pos = UtilityMethods.checkHighScorePosition(highscore_array, current_score);
-                //Log.e("DEINE HIGHSCORE POSI: ", ""+pos);
+                saveCurrentScore(current_score);
+                int[] highscore_array = loadAndSortHighScore();
+                int pos = checkHighScorePosition(highscore_array, current_score);
+                Log.e("DEINE HIGHSCORE POSI: ", ""+pos+"------------------------");
+                MGDExerciseGame.gameState.setCurrentHighScorePosition(pos);
+                MGDExerciseGame.currentHighScoreText.setText("Platz "+pos+" bei "+current_score+" Punkten"); // WARUM GEHEN HIER NUR 16 ZEICHEN ??? SONST OVERFLOW ???
+                for(int i=1; i< highscore_array.length+1; i++){
+                    if(i==1){
+                        MGDExerciseGame.currentHighScoreP1Text.setText("1.Platz: "+highscore_array[highscore_array.length-i]);
+                    }
+                    if(i==2){
+                        MGDExerciseGame.currentHighScoreP2Text.setText("2.Platz: "+highscore_array[highscore_array.length-i]);
+                    }
+                    if(i==3){
+                        MGDExerciseGame.currentHighScoreP3Text.setText("3.Platz: "+highscore_array[highscore_array.length-i]);
+                    }
+                    if(i==4){
+                        MGDExerciseGame.currentHighScoreP4Text.setText("4.Platz: "+highscore_array[highscore_array.length-i]);
+                    }
+                    if(i==5){
+                        MGDExerciseGame.currentHighScoreP5Text.setText("5.Platz: "+highscore_array[highscore_array.length-i]);
+                    }
+                }
+                MGDExerciseGame.gameState.setHighScore(highscore_array);
 
             }
         }
@@ -248,4 +296,79 @@ public class MGDExerciseActivity extends CardboardActivity {
             Log.e("stop", "zeit vorbei-------------------------------------");
         }
     };
+
+    static final Runnable mPollTaskForMenu = new Runnable() {
+        private volatile boolean mIsStopped = false;
+
+        public void run() {
+            double amp = mSensor.getAmplitude();
+            //Log.e("Noise", "runnable mPollTask " + amp);
+            if(mIsStopped == false){
+                if (amp > mThreshold ) {
+                    noise_deteced = true;
+                }else{
+                    noise_deteced = false;
+                }
+            }
+            mHandler.postDelayed(mPollTaskForMenu, POLL_INTERVAL);
+        }
+        private void setStopped(boolean isStop){
+            if (mIsStopped != isStop){
+                mIsStopped = isStop;
+            }
+        }
+        public void stop(){
+            setStopped(true);
+        }
+    };
+
+
+
+    public static int checkHighScorePosition(int[] highscore_array, int current_score){
+        int rang = 0;
+        for(int i = 0; i < highscore_array.length; i++){
+            if(highscore_array[i] == current_score){
+                rang = i;
+            }
+        }
+        return (highscore_array.length - rang);
+    }
+
+    public static int[] loadAndSortHighScore(){
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+        Map<String, ?> prefMap = sharedPreferences.getAll();
+        Set<String> keySet = prefMap.keySet();
+        int[] highscore_array = new int[prefMap.size()];
+        int i = 0;
+        for(String s : keySet){
+            Log.e("wert(i):", "i: "+i+ " wert: " + prefMap.get(s).toString());
+            highscore_array[i] = Integer.valueOf(prefMap.get(s).toString());
+            i++;
+        }
+
+        Log.e("jetzt", "wird sortiert");
+
+        Arrays.sort(highscore_array);
+        if(sharedPreferences.edit().clear().commit()){
+            SharedPreferences.Editor save_sorted_editor = sharedPreferences.edit();
+            for(int y = 0; y<highscore_array.length; y++){
+                Log.e("sortiert: ", "i: "+y+" wert: "+highscore_array[y]);
+                save_sorted_editor.putInt(""+y, highscore_array[y]).commit();
+            }
+        }
+        return highscore_array;
+    }
+
+    public static void saveCurrentScore(int current_score){
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+        final SharedPreferences.Editor editor = sharedPreferences.edit();
+        Map allPrefs = sharedPreferences.getAll();
+        Set<String> set = allPrefs.keySet();
+        int set_size = set.size();
+        Log.e("zufallszahl und zz: ", "setsize "+set_size+" zz: "+current_score);
+        editor.putInt(""+set_size, current_score);
+        Boolean commitWorkedFine = editor.commit();
+        Log.e("gespeichert", "alle werte gespeichert "+ commitWorkedFine);
+        Log.e("groesse: ", ""+set.size());
+    }
 }
