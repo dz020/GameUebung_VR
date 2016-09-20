@@ -47,7 +47,7 @@ public class MGDExerciseActivity extends CardboardActivity {
     private static int mThreshold = 5;
     private static Handler mHandler = new Handler();
     private static final int POLL_INTERVAL = 500; //ist auch die verzögerung bis laser sound erklingt
-    public static int INIT_GAME_DURATION = 120000;
+    public static int INIT_GAME_DURATION = 30000;
     public static int GAME_DURATION = INIT_GAME_DURATION; // 120 sek bzw 2 min
     private static SoundPool soundPool;
     private static int laserSound;
@@ -137,8 +137,6 @@ public class MGDExerciseActivity extends CardboardActivity {
         super.onPause();
         mp.release();
         mSensor.stop();
-        inGamePollThread.stop();
-        inMenuPollThread.stop();
         soundPool.release();
         MGDExerciseView.camera.release();
         Log.e("onpause", "end");
@@ -167,14 +165,6 @@ public class MGDExerciseActivity extends CardboardActivity {
     public static void startNewInGamePollTask(){
         inGamePollThread = new Thread(mPollTask);
         inGamePollThread.start();
-    }
-
-    public static void stopInGamePollTask(){
-        inGamePollThread.destroy();
-    }
-
-    public static void stopMenuPollTask(){
-        inMenuPollThread.destroy();
     }
 
     public static void startNewMenuPollTask(){
@@ -223,6 +213,7 @@ public class MGDExerciseActivity extends CardboardActivity {
             double amp = mSensor.getAmplitude();
             //Log.e("Noise", "runnable mPollTask " + amp);
             if(mIsStopped == false && GAME_DURATION > 0){
+                Log.e("SOUNDLISTENER", "in game läuft gerade");
                 if (amp > mThreshold ) { //wenn schuss abgegeben und munition verfügbar
                     if(MGDExerciseGame.gameState.current_ammo == 0){
                         MGDExerciseGame.gameState.empty_ammo = true;
@@ -294,6 +285,7 @@ public class MGDExerciseActivity extends CardboardActivity {
         public void stop() {
             setStopped(true);
             Log.e("stop", "zeit vorbei-------------------------------------");
+            setStopped(false);
         }
     };
 
@@ -302,11 +294,13 @@ public class MGDExerciseActivity extends CardboardActivity {
 
         public void run() {
             double amp = mSensor.getAmplitude();
-            //Log.e("Noise", "runnable mPollTask " + amp);
+            Log.e("Noise", "runnable mPollTask " + amp);
             if(mIsStopped == false){
                 if (amp > mThreshold ) {
+                    Log.e("noise detected", "true");
                     noise_deteced = true;
                 }else{
+                    Log.e("noise detected", "false");
                     noise_deteced = false;
                 }
             }

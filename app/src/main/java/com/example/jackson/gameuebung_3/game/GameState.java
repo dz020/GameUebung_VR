@@ -18,6 +18,16 @@ public class GameState {
     public int currentHighScorePosition;
     public int[] highScore;
 
+    public void resetAmmo(){
+        this.current_ammo = max_ammo;
+        this.empty_ammo = false;
+        String amor = "";
+        for (int ii = 0; ii < current_ammo; ii++) {
+            amor += " I";
+        }
+        MGDExerciseGame.amorText.setText(amor);
+    }
+
     public int getCurrentHighScorePosition() {
         return currentHighScorePosition;
     }
@@ -91,5 +101,10 @@ public class GameState {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public void resetHighscore(){
+        this.current_score = 0f;
+        MGDExerciseGame.scoreText.setText("0");
     }
 }

@@ -80,19 +80,18 @@ public class MGDExerciseGame extends Game{
     Material skyMaterial;
     Matrix4x4 skyMatrix;
 
+    List<List<String>> list;
+
+
     @Override
     public void initialize() {
         gameState = new GameState();
         gameState.level = 1;
         createWorld();
 
-        Log.e(TAG, "test loggg");
-
-
-
         try {
             //list anlegen mit allen möglichen gameobject positionen
-            List<List<String>> list = UtilityMethods.getListFromCSV("really_final_object_list.csv");
+            list = UtilityMethods.getListFromCSV("really_final_object_list.csv");
             for(int i = 0; i< list.size(); i++){
                 if(i == 7){
                     munitions_box = new GameObject("box.obj", "munition_texture.png");
@@ -106,8 +105,6 @@ public class MGDExerciseGame extends Game{
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-        gameState.setGameObject_amount(1);
 
         skyMesh = UtilityMethods.loadMesh("sphere.obj");
         skyTexture = UtilityMethods.loadTexture("spacetexture.jpg");
@@ -182,6 +179,7 @@ public class MGDExerciseGame extends Game{
         this.forwardVector = forwardVector;
     }
 
+    boolean first_update_happened = false;
     @Override
     public void update(float deltaSeconds) {
 
@@ -225,7 +223,7 @@ public class MGDExerciseGame extends Game{
         }
 
         if(gameState.status.equals("in game")) { //also wenn in game
-
+            Log.e(TAG, "in game -----");
             int counter = 0;
             //gucken dass immer 3 boxen zum abschießen da sind
             while(currently_visible_gameObjects.size() < gameState.max_game_object_amount){
@@ -305,14 +303,20 @@ public class MGDExerciseGame extends Game{
             if( fadenkreuz.getShape().intersects(highscore_btn_play_again.getShape(), 0.5f )){
                 highscore_btn_play_again.setModelTexture("again_btn_hovered.png");
                 if(MGDExerciseActivity.noise_deteced){
-                    Log.e(TAG, "menu button kollision und noise");
-                    gameState.setStatus("in game");
-                    MGDExerciseActivity.resetGameDuration();
+                    Log.e(TAG, "game soll neu gestartet werden");
+                    gameState.resetAmmo();
+                    gameState.resetHighscore();
                     MGDExerciseActivity.startNewInGamePollTask();
+                    gameState.setStatus("in game");
+                    first_update_happened = false;
                 }
             }else{
                 highscore_btn_play_again.setModelTexture("again_btn.png");
             }
+        }
+        if(!first_update_happened){
+            MGDExerciseActivity.resetGameDuration(); //startet die zeit nach dem ersten update call
+            first_update_happened = true;
         }
     }
 
